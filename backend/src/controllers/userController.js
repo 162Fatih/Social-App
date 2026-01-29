@@ -16,13 +16,13 @@ const getUserProfile = async (req, res) => {
       createdAt: -1,
     });
 
+    // ✅ FRONTEND İLE UYUMLU RESPONSE
     res.json({
-      user,
-      followersCount: user.followers.length,
-      followingCount: user.following.length,
+      ...user.toObject(),
       posts,
     });
   } catch (error) {
+    console.error("GET PROFILE ERROR:", error);
     res.status(500).json({ message: error.message });
   }
 };
@@ -45,11 +45,9 @@ const followUser = async (req, res) => {
     const isFollowing = currentUser.following.includes(userToFollow._id);
 
     if (isFollowing) {
-      // UNFOLLOW
       currentUser.following.pull(userToFollow._id);
       userToFollow.followers.pull(currentUser._id);
     } else {
-      // FOLLOW
       currentUser.following.push(userToFollow._id);
       userToFollow.followers.push(currentUser._id);
     }
@@ -61,8 +59,36 @@ const followUser = async (req, res) => {
       message: isFollowing ? "Takipten çıkıldı" : "Takip edildi",
     });
   } catch (error) {
+    console.error("FOLLOW ERROR:", error);
     res.status(500).json({ message: error.message });
   }
 };
 
-module.exports = { getUserProfile, followUser };
+const unfollowUser = async (req, res) => {
+  try {
+    if (req.params.id === req.user._id.toString()) {
+      return res
+        .status(400)
+        .json({ message: "Kendini takipten çıkamazsın" });
+    }
+
+    await User.findByIdAndUpdate(req.params.id, {
+      $pull: { followers: req.user._id },
+    });
+
+    await User.findByIdAndUpdate(req.user._id, {
+      $pull: { following: req.params.id },
+    });
+
+    res.json({ message: "Takip bırakıldı" });
+  } catch (error) {
+    console.error("UNFOLLOW ERROR:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = {
+  getUserProfile,
+  followUser,
+  unfollowUser,
+};

@@ -25,6 +25,18 @@ const getPosts = async (req, res) => {
   }
 };
 
+const getExplore = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate("user", "username")
+      .sort({ createdAt: -1 });
+
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ message: "Explore alınamadı" });
+  }
+};
+
 const likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
@@ -82,6 +94,7 @@ const deletePost = async (req, res) => {
 module.exports = {
   createPost,
   getPosts,
+  getExplore,
   likePost,
   deletePost,
 };

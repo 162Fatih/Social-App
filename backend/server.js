@@ -1,5 +1,7 @@
 require("dotenv").config();
 const express = require("express");
+const cors = require("cors");
+
 const connectDB = require("./src/config/db");
 const authRoutes = require("./src/routes/authRoutes");
 const postRoutes = require("./src/routes/postRoutes");
@@ -9,7 +11,12 @@ const userRoutes = require("./src/routes/userRoutes");
 const app = express();
 connectDB();
 
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+}));
 app.use(express.json());
+
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/comment", commentRoutes);

@@ -1,0 +1,25 @@
+require("dotenv").config();
+const express = require("express");
+const connectDB = require("./src/config/db");
+const authRoutes = require("./src/routes/authRoutes");
+const postRoutes = require("./src/routes/postRoutes");
+const commentRoutes = require("./src/routes/commentRoutes");
+const userRoutes = require("./src/routes/userRoutes");
+
+const app = express();
+connectDB();
+
+app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/comment", commentRoutes);
+app.use("/api/users", userRoutes);
+
+app.get("/", (req, res) => {
+  res.send("API ÇALIŞIYOR 🚀");
+});
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

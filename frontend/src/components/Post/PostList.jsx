@@ -3,14 +3,14 @@ import { getPosts } from "../../api/post.api";
 import PostCard from "./PostCard";
 
 export default function PostList() {
-  const [posts, setPosts] = useState([]);
+  const [posts, setPosts] = useState([]); // useState ile posts adında bir durum oluşturduk, başlangıç değeri boş dizi ve değer güncelleme fonksiyonu setPosts
 
   const fetchPosts = async () => {
     const res = await getPosts();
     setPosts(res.data);
   };
 
-  useEffect(() => {
+  useEffect(() => { // useEffect ile bileşen yüklendiğinde fetchPosts fonksiyonunu çağırıyoruz
     fetchPosts();
   }, []);
 

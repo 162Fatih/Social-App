@@ -37,7 +37,7 @@ const getExplore = async (req, res) => {
   }
 };
 
-const likePost = async (req, res) => {
+/*const likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -66,6 +66,48 @@ const likePost = async (req, res) => {
       liked: !alreadyLiked,
     });
   } catch (error) {
+    res.status(500).json({ message: "Like işlemi başarısız" });
+  }
+};*/
+
+const likePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post bulunamadı" });
+    }
+
+    // Auth middleware'in user objesini nasıl döndürdüğüne bağlı olarak 
+    // _id veya id kullan. Garanti olması için string'e çeviriyoruz.
+    const userId = req.user._id ? req.user._id.toString() : req.user.id.toString();
+
+    // includes yerine .some() kullanmak daha güvenlidir.
+    // Her bir beğeniyi string'e çevirip karşılaştırır.
+    const alreadyLiked = post.likes.some(
+        (likedUserId) => likedUserId.toString() === userId
+    );
+
+    if (alreadyLiked) {
+      // UNLIKE: Beğeniyi geri al
+      post.likes = post.likes.filter(
+        (id) => id.toString() !== userId
+      );
+    } else {
+      // LIKE: Beğeni ekle
+      post.likes.push(userId);
+    }
+
+    await post.save();
+
+    // Frontend'e güncel sayıyı ve durumu dönüyoruz
+    res.json({
+      likesCount: post.likes.length,
+      liked: !alreadyLiked,
+    });
+    
+  } catch (error) {
+    console.error(error); // Hatayı konsola yazdır ki görebilesin
     res.status(500).json({ message: "Like işlemi başarısız" });
   }
 };

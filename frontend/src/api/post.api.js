@@ -7,7 +7,7 @@ export const createPost = (data) =>
   api.get("/posts");*/
 
 export const getFeedPosts = () => {
-  return api.get("/posts/");
+  return api.get("/posts");
 };
 
 export const getExplorePosts = () => {

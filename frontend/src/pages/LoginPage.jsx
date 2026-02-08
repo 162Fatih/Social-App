@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import api from "../api/axios";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, setUser } = useAuth();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
@@ -15,9 +16,12 @@ export default function LoginPage() {
     try {
       await login(email, password);
       console.log(`Giriş başarılı: ${email}`);
+      const response = await api.get("/auth/me"); 
+      //console.log("Kullanıcı bilgileri çekildi:", response.data);
+      setUser(response.data);
       navigate("/");
     } catch (err) {
-      setError("Giriş başarısız");
+      setError("Giriş başarısız oldu."); //${err || "Lütfen bilgilerinizi kontrol edin."}
     }
   };
 

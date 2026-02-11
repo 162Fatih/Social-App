@@ -1,0 +1,64 @@
+/* Sidebar Ana Kutusu */
+.sidebar-container {
+  width: 280px;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  overflow-y: auto;
+  background-color: #212529;
+  color: white;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Linklerin Genel Stili */
+.nav-link-custom {
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  border-radius: 0.25rem;
+  transition: background-color 0.2s ease;
+  margin-bottom: 0.25rem;
+}
+
+/* Hover Efekti (Javascriptsiz çözüm) */
+.nav-link-custom:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* İstediğin hafif opaklık */
+  color: white;
+}
+
+/* Aktif Sayfa Stili */
+.nav-link-custom.active {
+  background-color: #0d6efd; /* Bootstrap primary blue */
+  color: white;
+}
+
+/* İkon Kutusu */
+.icon-box {
+  width: 24px;
+  display: inline-block;
+  text-align: center;
+  margin-right: 0.5rem;
+}
+
+/* Gönderi Paylaş Butonu */
+.btn-post-custom {
+  width: 100%;
+  background-color: #0d6efd; /* Mavi */
+  color: white;
+  border: none;
+  border-radius: 50px; /* Yuvarlak hatlar */
+  padding: 10px 0;
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  transition: background-color 0.2s;
+}
+
+.btn-post-custom:hover {
+  background-color: #0b5ed7; /* Koyu mavi */
+}

@@ -1,5 +1,6 @@
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "../styles/Navbar.css"; // CSS dosyasını import etmeyi unutma
 
 export default function Navbar() {
   const { user } = useAuth();
@@ -7,36 +8,30 @@ export default function Navbar() {
   const defaultAvatar =
     "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
-  // İkon kapsayıcısı için stil (Tüm menüde standart)
-  const iconStyle = {
-    width: "24px", // Sabit genişlik
-    display: "inline-block",
-    textAlign: "center", // İkonu ortalar
-  };
-
   return (
-    <div
-      className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
-      style={{ width: "280px", height: "100%" }}
-    >
+    <div className="sidebar-container">
+      <Link
+        to="/"
+        className="navbar-brand text-white text-decoration-none fs-4 px-2"
+      >
+        Social App
+      </Link>
+
+      <hr className="text-white" />
+
       <ul className="nav nav-pills flex-column mb-auto">
-        {/* --- FEED --- */}
+        {/* --- ANA SAYFA --- */}
         <li className="nav-item">
           <NavLink
-            to="/feed"
+            to="/home"
             className={({ isActive }) =>
-              // d-flex ve align-items-center ekledik
-              isActive
-                ? "nav-link active d-flex align-items-center"
-                : "nav-link text-white d-flex align-items-center"
+              `nav-link-custom ${isActive ? "active" : ""}`
             }
           >
-            {/* İkon Grubu */}
-            <span className="me-2" style={iconStyle}>
+            <span className="icon-box">
               <i className="bi bi-house-fill"></i>
             </span>
-            {/* Yazı Grubu */}
-            <span>Feed</span>
+            <span>Ana Sayfa</span>
           </NavLink>
         </li>
 
@@ -45,31 +40,32 @@ export default function Navbar() {
           <NavLink
             to="/explore"
             className={({ isActive }) =>
-              // d-flex ve align-items-center ekledik
-              isActive
-                ? "nav-link active d-flex align-items-center"
-                : "nav-link text-white d-flex align-items-center"
+              `nav-link-custom ${isActive ? "active" : ""}`
             }
           >
-            {/* İkon Grubu */}
-            <span className="me-2" style={iconStyle}>
+            <span className="icon-box">
               <i className="bi bi-search"></i>
             </span>
-            {/* Yazı Grubu */}
             <span>Keşfet</span>
           </NavLink>
         </li>
+
+        {/* --- GÖNDERİ PAYLAŞ BUTONU (YENİ) --- */}
+        {user && (
+          <li>
+            <button className="btn-post-custom shadow">Gönderi Paylaş</button>
+          </li>
+        )}
       </ul>
 
-      <hr />
+      <hr className="text-white" />
 
-      {/* --- KULLANICI ALANI --- */}
       <div className="d-flex align-items-center justify-content-between">
-        {/* SOL: Profil Linki */}
+        {/* Profil Linki */}
         <Link
-          to={`/profile/${user?._id}`}
+          to={user ? `/profile/${user._id}` : "/login"}
           className="d-flex align-items-center text-white text-decoration-none me-2"
-          title="Profilime Git"
+          title={user ? "Profilime Git" : "Giriş Yap"}
         >
           <img
             src={user?.profileImage || defaultAvatar}
@@ -82,7 +78,7 @@ export default function Navbar() {
           <strong>{user?.username || "Misafir"}</strong>
         </Link>
 
-        {/* SAĞ: Açılır Menü */}
+        {/* Dropdown */}
         <div className="dropdown">
           <a
             href="#"
@@ -96,38 +92,74 @@ export default function Navbar() {
             className="dropdown-menu dropdown-menu-dark text-small shadow"
             aria-labelledby="dropdownUser1"
           >
-            {/* AYARLAR */}
-            <li>
-              <Link
-                className="dropdown-item d-flex align-items-center"
-                to="/settings"
-              >
-                <span className="me-2" style={iconStyle}>
-                  <i className="bi bi-gear"></i>
-                </span>
-                <span>Ayarlar</span>
-              </Link>
-            </li>
-
-            <li>
-              <hr className="dropdown-divider" />
-            </li>
-
-            {/* ÇIKIŞ YAP */}
-            <li>
-              <button
-                className="dropdown-item d-flex align-items-center"
-                onClick={() => {
-                  localStorage.removeItem("token");
-                  window.location.href = "/login";
-                }}
-              >
-                <span className="me-2" style={iconStyle}>
-                  <i className="bi bi-box-arrow-left"></i>
-                </span>
-                <span>Çıkış Yap</span>
-              </button>
-            </li>
+            {user ? (
+              <>
+                <li>
+                  <Link
+                    className="dropdown-item d-flex align-items-center"
+                    to="/settings"
+                  >
+                    <span className="icon-box">
+                      <i className="bi bi-gear"></i>
+                    </span>
+                    <span>Ayarlar</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="dropdown-item d-flex align-items-center"
+                    to="/login"
+                  >
+                    <span className="icon-box">
+                      <i className="bi bi-arrow-repeat"></i>
+                    </span>
+                    <span>Hesap Değiştir</span>
+                  </Link>
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item d-flex align-items-center"
+                    onClick={() => {
+                      localStorage.removeItem("token");
+                      window.location.href = "/login";
+                    }}
+                  >
+                    <span className="icon-box">
+                      <i className="bi bi-box-arrow-left"></i>
+                    </span>
+                    <span>Çıkış Yap</span>
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <Link
+                    className="dropdown-item d-flex align-items-center"
+                    to="/login"
+                  >
+                    <span className="icon-box">
+                      <i className="bi bi-box-arrow-in-right"></i>
+                    </span>
+                    <span>Giriş Yap</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    className="dropdown-item d-flex align-items-center"
+                    to="/register"
+                  >
+                    <span className="icon-box">
+                      <i className="bi bi-person-plus"></i>
+                    </span>
+                    <span>Kayıt Ol</span>
+                  </Link>
+                </li>
+              </>
+            )}
           </ul>
         </div>
       </div>

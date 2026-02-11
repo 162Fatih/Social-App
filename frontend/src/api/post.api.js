@@ -13,3 +13,6 @@ export const getExplorePosts = () => {
 export const likePost = (postId) => api.put(`/posts/${postId}/like`);
 
 export const deletePost = (postId) => api.delete(`/posts/delete/${postId}`);
+
+export const getUserLikedPosts = (userId) =>
+  api.get(`/posts/user/${userId}/likes`);

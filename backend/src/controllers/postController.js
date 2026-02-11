@@ -17,7 +17,6 @@ const createPost = async (req, res) => {
       image: post.image,
       likesCount: 0,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Post oluşturulamadı" });
@@ -32,9 +31,9 @@ const getPosts = async (req, res) => {
       .populate("user", "username email")
       .sort({ createdAt: -1 });
 
-    const postsWithLikeInfo = posts.map(post => {
+    const postsWithLikeInfo = posts.map((post) => {
       const likedByCurrentUser = userId
-        ? post.likes.some(id => id.toString() === userId)
+        ? post.likes.some((id) => id.toString() === userId)
         : false;
 
       const isOwner = userId ? post.user._id.toString() === userId : false;
@@ -47,6 +46,7 @@ const getPosts = async (req, res) => {
         likesCount: post.likes.length,
         likedByCurrentUser,
         isOwner: isOwner,
+        createdAt: post.createdAt,
       };
     });
 
@@ -64,9 +64,9 @@ const getExplore = async (req, res) => {
       .populate("user", "username")
       .sort({ createdAt: -1 });
 
-    const postsWithLikeInfo = posts.map(post => {
+    const postsWithLikeInfo = posts.map((post) => {
       const likedByCurrentUser = userId
-        ? post.likes.some(id => id.toString() === userId)
+        ? post.likes.some((id) => id.toString() === userId)
         : false;
 
       const isOwner = userId ? post.user._id.toString() === userId : false;
@@ -79,6 +79,7 @@ const getExplore = async (req, res) => {
         likesCount: post.likes.length,
         likedByCurrentUser,
         isOwner: isOwner,
+        createdAt: post.createdAt,
       };
     });
 
@@ -101,13 +102,11 @@ const likePost = async (req, res) => {
     const userId = req.user._id.toString();
 
     const alreadyLiked = post.likes.some(
-        (likedUserId) => likedUserId.toString() === userId
+      (likedUserId) => likedUserId.toString() === userId,
     );
 
     if (alreadyLiked) {
-      post.likes = post.likes.filter(
-        (id) => id.toString() !== userId
-      );
+      post.likes = post.likes.filter((id) => id.toString() !== userId);
     } else {
       post.likes.push(userId);
     }
@@ -119,7 +118,6 @@ const likePost = async (req, res) => {
       likesCount: post.likes.length,
       liked: !alreadyLiked,
     });
-    
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Like işlemi başarısız" });
@@ -148,10 +146,48 @@ const deletePost = async (req, res) => {
   }
 };
 
+const getLikedPosts = async (req, res) => {
+  try {
+    const { userId } = req.params; // Beğenileri istenen kullanıcının ID'si
+    const currentUserId = req.user._id.toString(); // İsteği atan (giriş yapmış) kullanıcı
+
+    // Postlar içinde 'likes' dizisinde userId olanları bul
+    const likedPosts = await Post.find({ likes: userId })
+      .populate("user", "username profileImage")
+      .sort({ createdAt: -1 });
+
+    const formattedPosts = likedPosts.map((post) => {
+      return {
+        _id: post._id,
+        username: post.user.username,
+        profileImage: post.user.profileImage,
+        text: post.text,
+        image: post.image,
+        likesCount: post.likes.length,
+        likedByCurrentUser: currentUserId
+          ? post.likes.some((id) => id.toString() === currentUserId)
+          : false,
+        isOwner: post.user._id.toString() === currentUserId,
+        createdAt: post.createdAt,
+      };
+    });
+
+    res.status(200).json(formattedPosts);
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Beğenilen postlar getirilemedi",
+        error: error.message,
+      });
+  }
+};
+
 module.exports = {
   createPost,
   getPosts,
   getExplore,
   likePost,
   deletePost,
+  getLikedPosts,
 };

@@ -5,25 +5,58 @@ const getUserProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
       .select("-password")
-      .populate("followers", "username")
-      .populate("following", "username");
+      .populate("followers", "username profileImage")
+      .populate("following", "username profileImage");
 
     if (!user) {
       return res.status(404).json({ message: "Kullanıcı bulunamadı" });
     }
 
-    const posts = await Post.find({ user: user._id }).sort({
-      createdAt: -1,
+    // ARTIK BURADA Post.find() YAPMIYORUZ.
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const getUserPosts = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user._id.toString();
+
+    const posts = await Post.find({ user: userId })
+      .populate("user", "username profileImage")
+      .sort({ createdAt: -1 });
+
+    const postsWithLikeInfo = posts.map((post) => {
+      const likedByCurrentUser = currentUserId
+        ? post.likes.some((id) => id.toString() === currentUserId)
+        : false;
+
+      const isOwner = currentUserId
+        ? post.user._id.toString() === currentUserId
+        : false;
+
+      return {
+        _id: post._id,
+        username: post.user.username,
+        profileImage: post.user.profileImage,
+        text: post.text,
+        image: post.image,
+        likesCount: post.likes.length,
+        likedByCurrentUser,
+        isOwner: isOwner,
+        createdAt: post.createdAt,
+      };
     });
 
-    // ✅ FRONTEND İLE UYUMLU RESPONSE
-    res.json({
-      ...user.toObject(),
-      posts,
-    });
+    // ESKİ HALİNE DÖNDÜRDÜK: Veriyi direkt dizi olarak dönüyoruz
+    res.status(200).json(postsWithLikeInfo);
   } catch (error) {
-    console.error("GET PROFILE ERROR:", error);
-    res.status(500).json({ message: error.message });
+    res.status(500).json({
+      message: "Postlar getirilemedi",
+      error: error.message,
+    });
   }
 };
 
@@ -37,9 +70,7 @@ const followUser = async (req, res) => {
     }
 
     if (req.params.id === req.user._id.toString()) {
-      return res
-        .status(400)
-        .json({ message: "Kendini takip edemezsin" });
+      return res.status(400).json({ message: "Kendini takip edemezsin" });
     }
 
     const isFollowing = currentUser.following.includes(userToFollow._id);
@@ -67,9 +98,7 @@ const followUser = async (req, res) => {
 const unfollowUser = async (req, res) => {
   try {
     if (req.params.id === req.user._id.toString()) {
-      return res
-        .status(400)
-        .json({ message: "Kendini takipten çıkamazsın" });
+      return res.status(400).json({ message: "Kendini takipten çıkamazsın" });
     }
 
     await User.findByIdAndUpdate(req.params.id, {
@@ -89,6 +118,7 @@ const unfollowUser = async (req, res) => {
 
 module.exports = {
   getUserProfile,
+  getUserPosts,
   followUser,
   unfollowUser,
 };

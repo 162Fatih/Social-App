@@ -1,10 +1,7 @@
 import api from "./axios";
 
 export const createPost = (data) =>
-  api.post("/posts", data);
-
-/*export const getPosts = () =>
-  api.get("/posts");*/
+  api.post("/posts/create", data);
 
 export const getFeedPosts = () => {
   return api.get("/posts");
@@ -15,7 +12,7 @@ export const getExplorePosts = () => {
 };
 
 export const likePost = (postId) =>
-  api.put(`/posts/like/${postId}`);
+  api.put(`/posts/${postId}/like`);
 
 export const deletePost = (postId) =>
-  api.delete(`/posts/${postId}`);
+  api.delete(`/posts/delete/${postId}`);

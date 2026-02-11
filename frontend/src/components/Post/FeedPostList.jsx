@@ -1,26 +1,7 @@
-/*import { useEffect, useState } from "react";
-import { getFeedPosts } from "../../api/post.api";
-import PostCard from "./PostCard";
-
-export default function FeedPostList() {
-  const [posts, setPosts] = useState([]);
-
-  useEffect(() => {
-    getFeedPosts().then(res => setPosts(res.data));
-  }, []);
-
-  return (
-    <div>
-      {posts.map(post => (
-        <PostCard key={post._id} post={post} />
-      ))}
-    </div>
-  );
-}*/
-
 import { useEffect, useState } from "react";
 import { getFeedPosts } from "../../api/post.api";
 import PostCard from "./PostCard";
+import PostForm from "./PostForm";
 import { useAuth } from "../../context/AuthContext"; // AuthContext'i ekledik
 
 export default function FeedPostList() {
@@ -53,7 +34,6 @@ export default function FeedPostList() {
     }
   }, [user]);
 
-  // 1. Durum: Kullanıcı giriş yapmamış
   if (!user) {
     return (
       <div className="alert alert-warning">
@@ -61,11 +41,6 @@ export default function FeedPostList() {
       </div>
     );
   }
-
-  // 2. Durum: Yükleniyor
-  /*if (isLoading) {
-    return <div>Yükleniyor...</div>;
-  }*/
 
   if (isLoading) {
     return (
@@ -79,26 +54,27 @@ export default function FeedPostList() {
     );
   }
 
-  // 3. Durum: Hata var
-if (error) {
-    return (
-      <div className="text-center mt-5">
-        <p className="text-danger fs-5">{error}</p>
-        <button className="btn btn-outline-primary" onClick={fetchPosts}>
-            <i className="bi bi-arrow-clockwise me-2"></i>
-            Tekrar Dene
-        </button>
-      </div>
-    );
-  }
+  if (error) {
+      return (
+        <div className="text-center mt-5">
+          <p className="text-danger fs-5">{error}</p>
+          <button className="btn btn-outline-primary" onClick={fetchPosts}>
+              <i className="bi bi-arrow-clockwise me-2"></i>
+              Tekrar Dene
+          </button>
+        </div>
+      );
+    }
 
   return (
     <div>
+      <PostForm onPostCreated={fetchPosts} />
+
       {posts.map((post) => (
-        <PostCard 
-          key={post._id} 
-          post={post} 
-          onUpdate={fetchPosts} // 👈 ÖNEMLİ: Listeyi yenileme fonksiyonunu çocuğa gönderiyoruz
+        <PostCard
+          key={post._id}
+          post={post}
+          onUpdate={fetchPosts}
         />
       ))}
     </div>

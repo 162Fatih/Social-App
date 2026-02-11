@@ -1,61 +1,60 @@
+import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-
 import api from "../../api/axios";
-import { useGlobalLike } from "../../context/LikeContext";
+import "../../styles/Like.css";
 
-import './Like.css';
+export default function Like({ postId, likedByCurrentUser, likesCount }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
-export default function Like({ postId, likes = [] }) {
-    const { user } = useAuth();
-    const navigate = useNavigate();
-    
-    const { getLikeStatus, updateGlobalLike } = useGlobalLike();
-    
-    const initialLikedState = user && likes.includes(user._id);
-    const initialCountState = likes.length;
+  const [isLiked, setIsLiked] = useState(likedByCurrentUser);
+  const [likeCount, setLikeCount] = useState(likesCount);
+  const [isLoading, setIsLoading] = useState(false);
 
-    const { liked: isLiked, count: likeCount } = getLikeStatus(postId, initialLikedState, initialCountState);
+  const handleLikeClick = async () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
 
-    /*useEffect(() => {
-        console.log("Like durumu güncellendi:", isLiked);
-    },[isLiked]);*/
+    if (isLoading) return;
+    setIsLoading(true);
 
-    const handleLikeClick = async () => {
-        if (!user) {
-            navigate("/login");
-            return;
-        }
+    const prevLiked = isLiked;
+    const prevCount = likeCount;
 
-        const newLikedStatus = !isLiked;
-        const newCount = isLiked ? likeCount - 1 : likeCount + 1;
+    setIsLiked(!prevLiked);
+    setLikeCount(prevLiked ? prevCount - 1 : prevCount + 1);
 
-        updateGlobalLike(postId, newLikedStatus, newCount);
+    try {
+      const res = await api.put(`/posts/${postId}/like`);
 
-        try {
-            const res = await api.put(`/posts/${postId}/like`);
-            
-            if (res.data) {
-                updateGlobalLike(postId, res.data.liked, res.data.likesCount);
-            }
-        } catch (error) {
-            console.error("Beğeni hatası:", error);
-            updateGlobalLike(postId, isLiked, likeCount);
-        }
-    };
+      setIsLiked(res.data.liked);
+      setLikeCount(res.data.likesCount);
+    } catch (error) {
+      console.error("Beğeni hatası:", error);
 
-    return (
-        <button 
-            className={`btn d-flex align-items-center gap-2 border-0 bg-transparent p-0 like-btn ${isLiked ? 'liked' : ''}`} 
-            onClick={handleLikeClick}
-        >
+      // rollback
+      setIsLiked(prevLiked);
+      setLikeCount(prevCount);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            <i className="bi bi-hand-thumbs-up fs-4"></i>
-            <i className="bi bi-hand-thumbs-up-fill fs-4"></i>
-            
-            <span className="fw-bold user-select-none">
-                {likeCount}
-            </span>
-        </button>
-    );
+  return (
+    <button
+      disabled={isLoading}
+      onClick={handleLikeClick}
+      className={`btn d-flex align-items-center gap-2 border-0 bg-transparent p-0 like-btn
+        ${isLiked ? "liked" : ""}
+        ${isLoading ? "disabled" : ""}`}
+    >
+      <i className="bi bi-hand-thumbs-up fs-4"></i>
+      <i className="bi bi-hand-thumbs-up-fill fs-4"></i>
+
+      <span className="fw-bold user-select-none">{likeCount}</span>
+    </button>
+  );
 }

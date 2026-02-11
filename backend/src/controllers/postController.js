@@ -2,24 +2,55 @@ const Post = require("../models/Post");
 
 const createPost = async (req, res) => {
   try {
+    const userId = req.user._id.toString();
+
     const post = await Post.create({
-      user: req.user._id,
+      user: userId,
       text: req.body.text,
+      image: req.body.image || "",
     });
 
-    res.status(201).json(post);
+    res.status(201).json({
+      _id: post._id,
+      username: req.user.username,
+      text: post.text,
+      image: post.image,
+      likesCount: 0,
+    });
+
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Post oluşturulamadı" });
   }
 };
 
 const getPosts = async (req, res) => {
   try {
+    const userId = req.user._id.toString();
+
     const posts = await Post.find()
       .populate("user", "username email")
       .sort({ createdAt: -1 });
 
-    res.json(posts);
+    const postsWithLikeInfo = posts.map(post => {
+      const likedByCurrentUser = userId
+        ? post.likes.some(id => id.toString() === userId)
+        : false;
+
+      const isOwner = userId ? post.user._id.toString() === userId : false;
+
+      return {
+        _id: post._id,
+        username: post.user.username,
+        text: post.text,
+        image: post.image,
+        likesCount: post.likes.length,
+        likedByCurrentUser,
+        isOwner: isOwner,
+      };
+    });
+
+    res.json(postsWithLikeInfo);
   } catch (error) {
     res.status(500).json({ message: "Postlar alınamadı" });
   }
@@ -27,48 +58,36 @@ const getPosts = async (req, res) => {
 
 const getExplore = async (req, res) => {
   try {
+    const userId = req.user?._id?.toString();
+
     const posts = await Post.find()
       .populate("user", "username")
       .sort({ createdAt: -1 });
 
-    res.json(posts);
+    const postsWithLikeInfo = posts.map(post => {
+      const likedByCurrentUser = userId
+        ? post.likes.some(id => id.toString() === userId)
+        : false;
+
+      const isOwner = userId ? post.user._id.toString() === userId : false;
+
+      return {
+        _id: post._id,
+        username: post.user.username,
+        text: post.text,
+        image: post.image,
+        likesCount: post.likes.length,
+        likedByCurrentUser,
+        isOwner: isOwner,
+      };
+    });
+
+    res.json(postsWithLikeInfo);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Explore alınamadı" });
   }
 };
-
-/*const likePost = async (req, res) => {
-  try {
-    const post = await Post.findById(req.params.id);
-
-    if (!post) {
-      return res.status(404).json({ message: "Post bulunamadı" });
-    }
-
-    const userId = req.user.id;
-
-    const alreadyLiked = post.likes.includes(userId);
-
-    if (alreadyLiked) {
-      // unlike
-      post.likes = post.likes.filter(
-        (id) => id.toString() !== userId
-      );
-    } else {
-      // like
-      post.likes.push(userId);
-    }
-
-    await post.save();
-
-    res.json({
-      likesCount: post.likes.length,
-      liked: !alreadyLiked,
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Like işlemi başarısız" });
-  }
-};*/
 
 const likePost = async (req, res) => {
   try {
@@ -78,23 +97,18 @@ const likePost = async (req, res) => {
       return res.status(404).json({ message: "Post bulunamadı" });
     }
 
-    // Auth middleware'in user objesini nasıl döndürdüğüne bağlı olarak 
-    // _id veya id kullan. Garanti olması için string'e çeviriyoruz.
-    const userId = req.user._id ? req.user._id.toString() : req.user.id.toString();
+    //const userId = req.user._id ? req.user._id.toString() : req.user.id.toString();
+    const userId = req.user._id.toString();
 
-    // includes yerine .some() kullanmak daha güvenlidir.
-    // Her bir beğeniyi string'e çevirip karşılaştırır.
     const alreadyLiked = post.likes.some(
         (likedUserId) => likedUserId.toString() === userId
     );
 
     if (alreadyLiked) {
-      // UNLIKE: Beğeniyi geri al
       post.likes = post.likes.filter(
         (id) => id.toString() !== userId
       );
     } else {
-      // LIKE: Beğeni ekle
       post.likes.push(userId);
     }
 
@@ -107,7 +121,7 @@ const likePost = async (req, res) => {
     });
     
   } catch (error) {
-    console.error(error); // Hatayı konsola yazdır ki görebilesin
+    console.error(error);
     res.status(500).json({ message: "Like işlemi başarısız" });
   }
 };
@@ -127,7 +141,8 @@ const deletePost = async (req, res) => {
 
     await post.deleteOne();
 
-    res.json({ message: "Post silindi" });
+    //res.json({ message: "Post silindi" });
+    res.status(204).end();
   } catch (error) {
     res.status(500).json({ message: "Post silinemedi" });
   }

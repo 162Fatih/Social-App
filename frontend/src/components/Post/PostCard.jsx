@@ -1,73 +1,53 @@
 import { useState } from "react";
 import { deletePost } from "../../api/post.api";
-import { useAuth } from "../../context/AuthContext";
-
 import Like from '../Like-Component/Like'; 
+import MeatballsMenu from "../Meatballs-Menu-Component/MeatballsMenu";
 
 export default function PostCard({ post, onUpdate }) {
-  const { user } = useAuth();
   const [isDeleting, setIsDeleting] = useState(false);
 
-  if (!post || !post.user) return null;
+  if (!post) return null;
 
-  const isOwner = user ? post.user._id === user._id : false;
-
-  // Silme Fonksiyonu
   const handleDelete = async () => {
     if (!window.confirm("Bu postu silmek istediğine emin misin?")) return;
-    
+
     try {
       setIsDeleting(true);
       await deletePost(post._id);
-      // 2. LİSTEYİ YENİLEME AŞAMASI (Hata genelde burada çıkar)
-      // Eğer onUpdate fonksiyonu gönderilmişse çalıştır, yoksa hata verme.
-      if (onUpdate) {
-          onUpdate(); 
-      } else {
-          // Eğer onUpdate yoksa sayfayı manuel yenilemek istersen (opsiyonel)
-          // window.location.reload(); 
-          console.warn("onUpdate fonksiyonu gönderilmediği için liste yenilenemedi.");
-      }
+      onUpdate?.(); 
     } catch (error) {
-      console.error("Silme hatası:", error);
-      alert("Post silinemedi.");
-    } finally {
+      alert("Post silinemedi: " + (error.response?.data?.message || ""));
       setIsDeleting(false);
     }
   };
 
   return (
-    <div className="card mb-3 shadow-sm">
+    <div className="card mb-3 shadow-sm border-0" style={{ borderRadius: '16px' }}>
       <div className="card-body">
 
-        <h6 className="card-title fw-bold text-primary">
-          @{post.user.username}
-        </h6>
+        <div className="d-flex justify-content-between align-items-start mb-2">
+            <h6 className="card-title fw-bold  text-primary m-0">
+              @{post.username}
+            </h6>
 
-        <p className="card-text">
-          {post.text}
+            <MeatballsMenu 
+                isOwner={post.isOwner} 
+                onDelete={handleDelete} 
+            />
+        </div>
+        
+        <p className="card-text mb-3" style={{ fontSize: '1rem' }}>
+            {post.text}
         </p>
 
-        {/* Alt Kısım: Like ve Sil Butonları */}
-        <div className="d-flex align-items-center justify-content-between mt-3">
-
-          <Like 
-            postId={post._id} 
-            likes={post.likes} 
+        <div className="d-flex align-items-center">
+          <Like
+            postId={post._id}
+            likedByCurrentUser={post.likedByCurrentUser}
+            likesCount={post.likesCount}
           />
-
-          {/* Silme Butonu (Sadece Sahibi Görür) */}
-          {isOwner && (
-            <button 
-              onClick={handleDelete} 
-              disabled={isDeleting}
-              className="btn btn-sm btn-outline-danger border-0"
-            >
-              {isDeleting ? "Siliniyor..." : <i className="bi bi-trash"></i>}
-            </button>
-          )}
-
         </div>
+
       </div>
     </div>
   );

@@ -16,7 +16,11 @@ const authMiddleware = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       // Kullanıcıyı ekle (şifre hariç)
-      req.user = await User.findById(decoded.id).select("-password");
+      //req.user = await User.findById(decoded.id).select("-password"); // geriye _id, username, email döner
+
+      req.user = await User.findById(decoded.id).select(
+        "username email _id followers following",
+      ); // geriye _id, username, email, followers, following döner
 
       next();
     } catch (error) {

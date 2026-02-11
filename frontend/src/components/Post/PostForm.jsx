@@ -10,7 +10,9 @@ export default function PostForm({ onPostCreated }) {
 
     await createPost({ text });
     setText("");
-    onPostCreated();
+    if (onPostCreated) {
+      onPostCreated();
+    }
   };
 
   return (

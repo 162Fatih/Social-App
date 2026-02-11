@@ -39,6 +39,7 @@ const getUserPosts = async (req, res) => {
 
       return {
         _id: post._id,
+        userId: post.user._id,
         username: post.user.username,
         profileImage: post.user.profileImage,
         text: post.text,

@@ -40,6 +40,7 @@ const getPosts = async (req, res) => {
 
       return {
         _id: post._id,
+        userId: post.user._id,
         username: post.user.username,
         text: post.text,
         image: post.image,
@@ -73,6 +74,7 @@ const getExplore = async (req, res) => {
 
       return {
         _id: post._id,
+        userId: post.user._id,
         username: post.user.username,
         text: post.text,
         image: post.image,
@@ -159,6 +161,7 @@ const getLikedPosts = async (req, res) => {
     const formattedPosts = likedPosts.map((post) => {
       return {
         _id: post._id,
+        userId: post.user._id,
         username: post.user.username,
         profileImage: post.user.profileImage,
         text: post.text,
@@ -174,12 +177,10 @@ const getLikedPosts = async (req, res) => {
 
     res.status(200).json(formattedPosts);
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Beğenilen postlar getirilemedi",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Beğenilen postlar getirilemedi",
+      error: error.message,
+    });
   }
 };
 

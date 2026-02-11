@@ -19,11 +19,18 @@ export default function ProfilePage() {
   const [activeCollection, setActiveCollection] = useState("Tümü");
 
   const fetchProfile = async () => {
+    // 1. GÜVENLİK KONTROLÜ: id yoksa veya string olarak "undefined" ise dur
+    if (!id || id === "undefined") {
+      return;
+    }
+
     try {
       setLoading(true);
       const res = await getUserProfile(id);
       setProfile(res.data);
+      setError(null); // Başarılıysa hatayı temizle
     } catch (err) {
+      console.error("Profil çekme hatası:", err);
       setError(err.response?.data?.message || "Kullanıcı bulunamadı.");
     } finally {
       setLoading(false);
@@ -31,7 +38,10 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    if (id) fetchProfile();
+    // 2. SADECE ID VARSA ÇALIŞTIR
+    if (id && id !== "undefined") {
+      fetchProfile();
+    }
   }, [id]);
 
   const handleFollowToggle = async () => {
@@ -68,9 +78,10 @@ export default function ProfilePage() {
       <div
         className="container-fluid border-start border-end"
         style={{
+          paddingLeft: "0",
+          paddingRight: "0",
           minHeight: "100vh",
           backgroundColor: "#fff",
-          paddingBottom: "20px",
         }}
       >
         <ProfileHeader

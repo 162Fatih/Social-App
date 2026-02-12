@@ -1,11 +1,99 @@
-import PostForm from "../components/Post/PostForm";
+import { useEffect, useState } from "react";
+import { getHomePosts } from "../api/post.api";
+import { useAuth } from "../context/AuthContext";
 import HomePostList from "../components/Post/HomePostList";
+import PostForm from "../components/Post/PostForm";
+import HomeHeader from "../components/Home/HomeHeader";
+import Loading from "../components/Loading";
+import RightAside from "../components/Layout/RightAside";
 
 export default function Home() {
+  const [posts, setPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+  const { user } = useAuth();
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setTheme(localStorage.getItem("theme") || "light");
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
+  const fetchPosts = async () => {
+    if (!user) return;
+    setIsLoading(true);
+    try {
+      const res = await getHomePosts();
+      setPosts(res.data);
+    } catch (err) {
+      console.error("Veri çekme hatası:", err);
+    } finally {
+      setTimeout(() => setIsLoading(false), 300);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts();
+  }, [user]);
+
+  if (!user) {
+    return (
+      <div className="alert alert-warning text-center shadow-sm m-4">
+        👋 İçerikleri görmek için lütfen{" "}
+        <a href="/login" className="alert-link">
+          giriş yapınız
+        </a>
+        .
+      </div>
+    );
+  }
+
   return (
-    <>
-      <PostForm />
-      <HomePostList />
-    </>
+    <div
+      className={`min-vh-100 ${theme === "dark" ? "bg-black text-white" : "bg-white text-dark"}`}
+      style={{ transition: "background-color 0.3s ease" }}
+    >
+      <div className="container-fluid">
+        <div className="row justify-content-center">
+          <div
+            className={`col-12 col-md-8 col-lg-6 border-start border-end min-vh-100 p-0 ${theme === "dark" ? "border-secondary" : ""}`}
+          >
+            <div className="px-3">
+              {isLoading ? (
+                <div className="pt-5">
+                  <Loading message="Ana Sayfa Yükleniyor..." theme={theme} />
+                </div>
+              ) : (
+                <div className="pt-2">
+                  <HomeHeader />
+
+                  <div className="mb-4">
+                    <PostForm onPostCreated={fetchPosts} theme={theme} />
+                  </div>
+
+                  <hr
+                    className={`my-4 opacity-25 ${theme === "dark" ? "text-secondary" : ""}`}
+                  />
+
+                  <HomePostList
+                    posts={posts}
+                    fetchPosts={fetchPosts}
+                    theme={theme}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="col-lg-4 d-none d-lg-block">
+            <RightAside theme={theme} />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

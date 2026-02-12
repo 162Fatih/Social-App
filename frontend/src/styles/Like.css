@@ -1,22 +1,35 @@
+/* Genel Buton Yapısı */
 .like-btn {
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #6c757d; /* text-secondary (Gri) */
+  color: #6c757d; /* Varsayılan Açık Tema Gri */
 }
 
-.like-btn:hover{
+/* Hover Efekti (Büyüme) */
+.like-btn:hover {
   transform: scale(1.1);
 }
 
+/* --- KOYU TEMA AYARI --- */
+/* Siyah tema seçildiğinde beğenilmemiş butonun rengini beyaza çeker */
+.like-btn.dark-theme {
+  color: #e7e9ea; /* Siyah arka planda görünür olması için açık gri/beyaz */
+}
+
+/* --- ETKİLEŞİM DURUMLARI (Açık ve Koyu Ortak) --- */
 .like-btn:hover,
 .like-btn.liked {
-  color: #0d6efd; /* text-primary (Mavi) */
+  color: #0d6efd !important; /* Beğenildiğinde veya hoverda her zaman Mavi */
 }
 
 .like-btn.disabled {
   pointer-events: none;
+  opacity: 0.6;
 }
 
+/* --- İKON YÖNETİMİ --- */
+
+/* Varsayılan: Boş ikon görünsün, Dolu ikon gizlensin */
 .like-btn .bi-hand-thumbs-up-fill {
   display: none;
 }
@@ -24,6 +37,7 @@
   display: inline-block;
 }
 
+/* Hover veya Beğenilme durumunda: Dolu ikon görünsün, Boş ikon gizlensin */
 .like-btn:hover .bi-hand-thumbs-up-fill,
 .like-btn.liked .bi-hand-thumbs-up-fill {
   display: inline-block;

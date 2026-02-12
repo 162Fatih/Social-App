@@ -1,13 +1,23 @@
 const Post = require("../models/Post");
+const fs = require("fs");
+const path = require("path");
 
 const createPost = async (req, res) => {
   try {
     const userId = req.user._id.toString();
+    const { text } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
+
+    if (!text && !imagePath) {
+      return res
+        .status(400)
+        .json({ message: "Post içeriği tamamen boş olamaz." });
+    }
 
     const post = await Post.create({
       user: userId,
-      text: req.body.text,
-      image: req.body.image || "",
+      text: text || "", // Eğer yazı yoksa boş string kaydet
+      image: imagePath,
     });
 
     res.status(201).json({
@@ -18,7 +28,7 @@ const createPost = async (req, res) => {
       likesCount: 0,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Hata:", error);
     res.status(500).json({ message: "Post oluşturulamadı" });
   }
 };
@@ -43,7 +53,7 @@ const getPosts = async (req, res) => {
         userId: post.user._id,
         username: post.user.username,
         text: post.text,
-        image: post.image,
+        image: post.image ? `http://localhost:5000${post.image}` : null,
         likesCount: post.likes.length,
         likedByCurrentUser,
         isOwner: isOwner,
@@ -77,7 +87,7 @@ const getExplore = async (req, res) => {
         userId: post.user._id,
         username: post.user.username,
         text: post.text,
-        image: post.image,
+        image: post.image ? `http://localhost:5000${post.image}` : null,
         likesCount: post.likes.length,
         likedByCurrentUser,
         isOwner: isOwner,
@@ -115,7 +125,6 @@ const likePost = async (req, res) => {
 
     await post.save();
 
-    // Frontend'e güncel sayıyı ve durumu dönüyoruz
     res.json({
       likesCount: post.likes.length,
       liked: !alreadyLiked,
@@ -134,26 +143,37 @@ const deletePost = async (req, res) => {
       return res.status(404).json({ message: "Post bulunamadı" });
     }
 
-    // yetki kontrolü
     if (post.user.toString() !== req.user.id) {
       return res.status(403).json({ message: "Yetkin yok" });
     }
 
+    if (post.image) {
+      const imagePath = path.join(process.cwd(), post.image);
+
+      fs.access(imagePath, fs.constants.F_OK, (err) => {
+        if (!err) {
+          fs.unlink(imagePath, (err) => {
+            if (err) console.error("Resim dosyası silinirken hata:", err);
+            /*else console.log("Resim sunucudan başarıyla silindi:", post.image);*/
+          });
+        }
+      });
+    }
+
     await post.deleteOne();
 
-    //res.json({ message: "Post silindi" });
     res.status(204).end();
   } catch (error) {
+    console.error("Silme hatası:", error);
     res.status(500).json({ message: "Post silinemedi" });
   }
 };
 
 const getLikedPosts = async (req, res) => {
   try {
-    const { userId } = req.params; // Beğenileri istenen kullanıcının ID'si
-    const currentUserId = req.user._id.toString(); // İsteği atan (giriş yapmış) kullanıcı
+    const { userId } = req.params;
+    const currentUserId = req.user._id.toString();
 
-    // Postlar içinde 'likes' dizisinde userId olanları bul
     const likedPosts = await Post.find({ likes: userId })
       .populate("user", "username profileImage")
       .sort({ createdAt: -1 });
@@ -165,7 +185,7 @@ const getLikedPosts = async (req, res) => {
         username: post.user.username,
         profileImage: post.user.profileImage,
         text: post.text,
-        image: post.image,
+        image: post.image ? `http://localhost:5000${post.image}` : null,
         likesCount: post.likes.length,
         likedByCurrentUser: currentUserId
           ? post.likes.some((id) => id.toString() === currentUserId)

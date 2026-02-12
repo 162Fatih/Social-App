@@ -117,9 +117,43 @@ const unfollowUser = async (req, res) => {
   }
 };
 
+const updateSettings = async (req, res) => {
+  try {
+    const { theme } = req.body;
+
+    // 1. Gelen veriyi doğrula
+    if (!theme || !["light", "dark"].includes(theme)) {
+      return res
+        .status(400)
+        .json({ message: "Geçersiz veya eksik tema seçimi" });
+    }
+
+    // 2. Güncelle ve yeni veriyi al
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: { "settings.theme": theme } },
+      { new: true, runValidators: true }, // runValidators modeldeki enum kontrolünü zorunlu kılar
+    );
+
+    // 3. Kullanıcı bulunamadıysa güvenlik kontrolü
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+    }
+
+    // 4. Sadece settings kısmını dön (Tam istediğin sade çıktı)
+    res.json(updatedUser.settings);
+  } catch (error) {
+    console.error("Ayarlar Güncelleme Hatası:", error);
+    res
+      .status(500)
+      .json({ message: "Ayarlar güncellenirken sunucu hatası oluştu" });
+  }
+};
+
 module.exports = {
   getUserProfile,
   getUserPosts,
   followUser,
   unfollowUser,
+  updateSettings,
 };

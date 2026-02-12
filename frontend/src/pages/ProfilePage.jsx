@@ -18,17 +18,25 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");
   const [activeCollection, setActiveCollection] = useState("Tümü");
 
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setTheme(localStorage.getItem("theme") || "light");
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const fetchProfile = async () => {
-    // 1. GÜVENLİK KONTROLÜ: id yoksa veya string olarak "undefined" ise dur
-    if (!id || id === "undefined") {
-      return;
-    }
+    if (!id || id === "undefined") return;
 
     try {
       setLoading(true);
       const res = await getUserProfile(id);
       setProfile(res.data);
-      setError(null); // Başarılıysa hatayı temizle
+      setError(null);
     } catch (err) {
       console.error("Profil çekme hatası:", err);
       setError(err.response?.data?.message || "Kullanıcı bulunamadı.");
@@ -38,7 +46,6 @@ export default function ProfilePage() {
   };
 
   useEffect(() => {
-    // 2. SADECE ID VARSA ÇALIŞTIR
     if (id && id !== "undefined") {
       fetchProfile();
     }
@@ -55,7 +62,6 @@ export default function ProfilePage() {
         ? await unfollowUser(profile._id)
         : await followUser(profile._id);
 
-      // Takipçi sayısını güncellemek için profili sessizce tazele
       const res = await getUserProfile(id);
       setProfile(res.data);
     } catch (err) {
@@ -67,21 +73,33 @@ export default function ProfilePage() {
 
   if (loading)
     return (
-      <div className="text-center mt-5">
-        <div className="spinner-border text-primary"></div>
+      <div
+        className={`text-center mt-5 min-vh-100 ${theme === "dark" ? "bg-black text-white" : "bg-white"}`}
+      >
+        <div className="spinner-border text-primary mt-5"></div>
       </div>
     );
-  if (error) return <div className="alert alert-danger m-5">{error}</div>;
+
+  if (error)
+    return (
+      <div
+        className={`min-vh-100 p-5 ${theme === "dark" ? "bg-black text-white" : "bg-white"}`}
+      >
+        <div className="alert alert-danger">{error}</div>
+      </div>
+    );
 
   return (
-    <div className="container-fluid p-0">
+    <div
+      className={`container-fluid p-0 ${theme === "dark" ? "bg-black text-white" : "bg-white text-dark"}`}
+    >
       <div
-        className="container-fluid border-start border-end"
+        className={`container-fluid border-start border-end ${theme === "dark" ? "border-secondary" : ""}`}
         style={{
           paddingLeft: "0",
           paddingRight: "0",
           minHeight: "100vh",
-          backgroundColor: "#fff",
+          backgroundColor: "transparent",
         }}
       >
         <ProfileHeader
@@ -92,9 +110,14 @@ export default function ProfilePage() {
           )}
           handleFollowToggle={handleFollowToggle}
           btnLoading={btnLoading}
+          theme={theme}
         />
 
-        <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
+        <ProfileTabs
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          theme={theme}
+        />
 
         <div className="px-4 py-3">
           <ProfileContent
@@ -102,6 +125,7 @@ export default function ProfilePage() {
             id={id}
             activeCollection={activeCollection}
             setActiveCollection={setActiveCollection}
+            theme={theme}
           />
         </div>
       </div>

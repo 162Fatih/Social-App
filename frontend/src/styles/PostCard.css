@@ -1,0 +1,67 @@
+/* PostCard.css */
+
+/* --- VARSAYILAN AÇIK TEMA --- */
+.post-card {
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  transition: all 0.25s ease; /* Renk ve hover geçişlerini yumuşatır */
+  border: 1px solid #eff3f4; 
+  background-color: #ffffff;
+  color: #000000;
+  cursor: pointer;
+}
+
+/* AÇIK TEMA HOVER: Üzerine gelince hafif grileşme */
+.post-card:not(.dark):hover {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+/* --- KOYU TEMA AYARLARI --- */
+.post-card.dark {
+  background-color: #000000 !important; /* Arka plan tam siyah */
+  border-color: #2f3336 !important;     /* X tarzı koyu gri çerçeve */
+  color: #ffffff !important;
+}
+
+/* KOYU TEMA HOVER: Siyah üzerinde hafif "aydınlanma" (gri efekti) */
+.post-card.dark:hover {
+  /* Siyah üzerinde %5 beyaz opaklık, o istediğin grileşmeyi sağlar */
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* --- İÇERİK DÜZENLEMELERİ --- */
+
+.post-card .card-body {
+  padding: 1rem;
+}
+
+.post-card .post-text {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+  color: inherit; /* Kartın o anki yazı rengini miras alır */
+}
+
+/* Koyu temada metinlerin okunabilirliğini artır */
+.post-card.dark .post-text {
+  color: #e7e9ea !important;
+}
+
+/* --- AYIRICI ÇİZGİ (HR) --- */
+.post-card hr {
+  margin: 0.5rem 0;
+  opacity: 0.1;
+  border-top: 1px solid #65676b;
+}
+
+.post-card.dark hr {
+  border-top: 1px solid #2f3336 !important;
+  opacity: 0.5;
+}
+
+/* Silme işlemi sırasındaki görünüm */
+.post-card.opacity-50 {
+  opacity: 0.5;
+  pointer-events: none;
+}

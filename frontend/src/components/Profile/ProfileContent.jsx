@@ -6,16 +6,16 @@ import ProfileSavedCollections from "./ProfileSavedCollections";
 
 export default function ProfileContent({
   activeTab,
-  id, // ProfilePage'den gelen prop ismi 'id' ise burada 'id' olmalı
+  id,
   activeCollection,
   setActiveCollection,
+  theme,
 }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const collections = ["Tümü", "Manzaralar", "Yazılım", "Komik"];
 
   const loadData = async () => {
-    // KRİTİK KONTROL: id undefined veya boşsa isteği engelle
     if (!id || id === "undefined") return;
 
     setLoading(true);
@@ -25,25 +25,21 @@ export default function ProfileContent({
           ? await getUserPosts(id)
           : await getUserLikedPosts(id);
 
-      // Backend'den gelen verinin dizi olduğundan emin olalım
-      // Eğer backend { userPosts: [] } dönüyorsa res.data.userPosts yapmalısın
       setData(res.data || []);
     } catch (err) {
       console.error("Content yükleme hatası:", err);
-      setData([]); // Hata durumunda listeyi temizle
+      setData([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // id veya activeTab değiştiğinde, eğer sekme saved değilse veriyi çek
   useEffect(() => {
     if (activeTab !== "saved" && id) {
       loadData();
     }
   }, [id, activeTab]);
 
-  // Kaydedilenler Sekmesi Görünümü
   if (activeTab === "saved") {
     return (
       <>
@@ -60,7 +56,6 @@ export default function ProfileContent({
     );
   }
 
-  // Gönderiler ve Beğenilenler Görünümü
   return (
     <div className="d-flex flex-column gap-3">
       {loading ? (
@@ -69,7 +64,12 @@ export default function ProfileContent({
         </div>
       ) : data.length > 0 ? (
         data.map((post) => (
-          <PostCard key={post._id} post={post} onUpdate={loadData} />
+          <PostCard
+            key={post._id}
+            post={post}
+            onUpdate={loadData}
+            theme={theme}
+          />
         ))
       ) : (
         <div className="text-center py-5 text-muted">

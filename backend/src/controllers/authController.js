@@ -17,9 +17,7 @@ const register = async (req, res) => {
     });
 
     if (userExists) {
-      return res
-        .status(400)
-        .json({ message: "Kullanıcı zaten mevcut" });
+      return res.status(400).json({ message: "Kullanıcı zaten mevcut" });
     }
 
     // 3. Şifre hash
@@ -34,11 +32,9 @@ const register = async (req, res) => {
     });
 
     // 5. JWT üret
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     res.status(201).json({
       token,
@@ -53,6 +49,46 @@ const register = async (req, res) => {
   }
 };
 
+// const login = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     // 1. Alan kontrolü
+//     if (!email || !password) {
+//       return res.status(400).json({ message: "Tüm alanlar zorunlu" });
+//     }
+
+//     // 2. Kullanıcı var mı?
+//     const user = await User.findOne({ email });
+//     if (!user) {
+//       return res.status(400).json({ message: "Geçersiz bilgiler" });
+//     }
+
+//     // 3. Şifre karşılaştır
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) {
+//       return res.status(400).json({ message: "Geçersiz bilgiler" });
+//     }
+
+//     // 4. JWT üret
+//     const token = jwt.sign(
+//       { id: user._id },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "7d" }
+//     );
+
+//     res.json({
+//       token,
+//       user: {
+//         id: user._id,
+//         username: user.username,
+//         email: user.email,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// };
 
 const login = async (req, res) => {
   try {
@@ -76,25 +112,25 @@ const login = async (req, res) => {
     }
 
     // 4. JWT üret
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
+    // 5. Yanıtı gönder (settings alanını ekledik)
     res.json({
       token,
       user: {
-        id: user._id,
+        _id: user._id, // Genelde frontend'de _id kullanılır, tutarlı olması için ekledim
         username: user.username,
         email: user.email,
+        settings: user.settings, // <-- ARTIK TEMA BİLGİSİ BURADAN GİDİYOR
       },
     });
   } catch (error) {
+    console.error("Login Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
-
 
 const getMe = async (req, res) => {
   res.json(req.user);

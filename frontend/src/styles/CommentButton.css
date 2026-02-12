@@ -1,0 +1,39 @@
+/* CommentButton.css */
+
+.comment-btn {
+  /* Buton Sıfırlama */
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.25rem !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  /* AÇIK TEMA VARSAYILAN (Gri) */
+  color: #65676b !important; 
+  text-decoration: none !important;
+}
+
+/* Sadece Hover Durumu (Mavi) */
+.comment-btn:hover {
+  color: #1d9bf0 !important;
+  transform: scale(1.1);
+}
+
+/* --- KOYU TEMA --- */
+/* Beğenilmemiş/Normal duruşta Beyaz */
+.comment-btn.dark-theme {
+  color: #e7e9ea !important;
+}
+
+/* Koyu Temada Hover yine Mavi */
+.comment-btn.dark-theme:hover {
+  color: #1d9bf0 !important;
+}
+
+.comment-count {
+  font-size: 0.9rem;
+  font-weight: 600;
+}

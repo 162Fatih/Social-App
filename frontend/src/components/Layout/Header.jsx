@@ -4,7 +4,6 @@ import { useAuth } from "../../context/AuthContext";
 export default function Header() {
   const { user } = useAuth();
 
-  // Hizalama için standart stil
   const iconStyle = {
     width: "24px",
     display: "inline-block",
@@ -14,10 +13,10 @@ export default function Header() {
   return (
     <header
       style={{
-        position: "sticky", // Yapışkan özellik
-        top: "0", // En tepeye yapış
-        zIndex: 1000, // Diğer içeriklerin (postların) üstünde dursun
-        width: "100%", // Tam genişlik
+        position: "sticky",
+        top: "0",
+        zIndex: 1000,
+        width: "100%",
       }}
     >
       <nav

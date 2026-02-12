@@ -27,8 +27,16 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     const res = await api.post("/auth/login", { email, password });
+    const userData = res.data.user;
+
     localStorage.setItem("token", res.data.token);
-    setUser(res.data.user);
+
+    if (userData.settings?.theme) {
+      localStorage.setItem("theme", userData.settings.theme);
+    }
+
+    setUser(userData);
+    window.dispatchEvent(new Event("storage"));
   };
 
   const register = async (username, email, password) => {
@@ -43,7 +51,11 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     localStorage.removeItem("token");
+
+    localStorage.setItem("theme", "light");
     setUser(null);
+
+    window.dispatchEvent(new Event("storage"));
   };
 
   return (

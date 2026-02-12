@@ -9,7 +9,6 @@ const postSchema = new mongoose.Schema(
     },
     text: {
       type: String,
-      required: true,
       trim: true,
     },
     image: {
@@ -25,7 +24,7 @@ const postSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("Post", postSchema);

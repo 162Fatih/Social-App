@@ -37,3 +37,33 @@
     background-color: rgba(220, 53, 69, 0.1) !important; /* %10 Kırmızı arka plan */
     color: #dc3545 !important; /* Kırmızı yazı rengi */
 }
+
+
+
+
+.dropdown-dark {
+    background-color: #16181c !important; /* X'in dropdown siyahı */
+    border: 1px solid #2f3336 !important;
+}
+
+.dropdown-dark .dropdown-item {
+    color: #e7e9ea !important;
+    transition: background-color 0.2s;
+}
+
+/* Koyu temada üzerine gelince (Hover) rengi */
+.dropdown-dark .dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Sil butonu hover ayarı */
+.dropdown-dark .dropdown-item.text-danger:hover {
+    background-color: rgba(244, 33, 46, 0.1) !important;
+}
+
+/* Üç nokta butonunun hover efekti */
+.meatball-btn:hover {
+    background-color: rgba(29, 155, 240, 0.1);
+    color: #1d9bf0 !important;
+    border-radius: 50%;
+}

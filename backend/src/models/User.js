@@ -33,10 +33,17 @@ const userSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    settings: {
+      theme: {
+        type: String,
+        enum: ["light", "dark"],
+        default: "light",
+      },
+    },
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 module.exports = mongoose.model("User", userSchema);

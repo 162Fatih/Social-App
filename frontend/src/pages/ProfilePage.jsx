@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import ProfileHeader from "../components/Profile/ProfileHeader";
 import ProfileTabs from "../components/Profile/ProfileTabs";
 import ProfileContent from "../components/Profile/ProfileContent";
+import RightAside from "../components/Layout/RightAside";
 
 export default function ProfilePage() {
   const { id } = useParams();
@@ -93,40 +94,45 @@ export default function ProfilePage() {
     <div
       className={`container-fluid p-0 ${theme === "dark" ? "bg-black text-white" : "bg-white text-dark"}`}
     >
-      <div
-        className={`container-fluid border-start border-end ${theme === "dark" ? "border-secondary" : ""}`}
-        style={{
-          paddingLeft: "0",
-          paddingRight: "0",
-          minHeight: "100vh",
-          backgroundColor: "transparent",
-        }}
-      >
-        <ProfileHeader
-          profile={profile}
-          isOwnProfile={currentUser?._id === profile?._id}
-          isFollowing={profile?.followers.some(
-            (f) => (f._id || f) === currentUser?._id,
-          )}
-          handleFollowToggle={handleFollowToggle}
-          btnLoading={btnLoading}
-          theme={theme}
-        />
+      <div className="container-fluid">
+        <div className="row justify-content-center">
+          <div
+            className={`col-12 col-md-8 col-lg-6 border-start border-end p-0 min-vh-100 ${
+              theme === "dark" ? "border-secondary" : ""
+            }`}
+            style={{ backgroundColor: "transparent" }}
+          >
+            <ProfileHeader
+              profile={profile}
+              isOwnProfile={currentUser?._id === profile?._id}
+              isFollowing={profile?.followers.some(
+                (f) => (f._id || f) === currentUser?._id,
+              )}
+              handleFollowToggle={handleFollowToggle}
+              btnLoading={btnLoading}
+              theme={theme}
+            />
 
-        <ProfileTabs
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          theme={theme}
-        />
+            <ProfileTabs
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              theme={theme}
+            />
 
-        <div className="px-4 py-3">
-          <ProfileContent
-            activeTab={activeTab}
-            id={id}
-            activeCollection={activeCollection}
-            setActiveCollection={setActiveCollection}
-            theme={theme}
-          />
+            <div className="px-4 py-3">
+              <ProfileContent
+                activeTab={activeTab}
+                id={id}
+                activeCollection={activeCollection}
+                setActiveCollection={setActiveCollection}
+                theme={theme}
+              />
+            </div>
+          </div>
+
+          <div className="col-lg-4 d-none d-lg-block">
+            <RightAside theme={theme} />
+          </div>
         </div>
       </div>
     </div>

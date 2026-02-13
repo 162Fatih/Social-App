@@ -1,37 +1,38 @@
 /* PostCard.css */
 
-/* --- VARSAYILAN AÇIK TEMA --- */
+/* --- ANA KART YAPISI --- */
 .post-card {
   border-radius: 16px;
   overflow: hidden;
   margin-bottom: 1rem;
-  transition: all 0.25s ease; /* Renk ve hover geçişlerini yumuşatır */
+  transition: all 0.25s ease;
   border: 1px solid #eff3f4; 
   background-color: #ffffff;
   color: #000000;
   cursor: pointer;
+  
+  /* GENİŞLİK KONTROLÜ */
+  max-width: 600px; /* Sosyal medya standart genişliği */
+  width: 100%;
 }
 
-/* AÇIK TEMA HOVER: Üzerine gelince hafif grileşme */
+/* AÇIK TEMA HOVER */
 .post-card:not(.dark):hover {
   background-color: rgba(0, 0, 0, 0.03) !important;
 }
 
 /* --- KOYU TEMA AYARLARI --- */
 .post-card.dark {
-  background-color: #000000 !important; /* Arka plan tam siyah */
-  border-color: #2f3336 !important;     /* X tarzı koyu gri çerçeve */
+  background-color: #000000 !important;
+  border-color: #2f3336 !important;
   color: #ffffff !important;
 }
 
-/* KOYU TEMA HOVER: Siyah üzerinde hafif "aydınlanma" (gri efekti) */
 .post-card.dark:hover {
-  /* Siyah üzerinde %5 beyaz opaklık, o istediğin grileşmeyi sağlar */
   background-color: rgba(255, 255, 255, 0.05) !important;
 }
 
 /* --- İÇERİK DÜZENLEMELERİ --- */
-
 .post-card .card-body {
   padding: 1rem;
 }
@@ -40,17 +41,58 @@
   font-size: 0.95rem;
   line-height: 1.5;
   margin-bottom: 0.75rem;
-  color: inherit; /* Kartın o anki yazı rengini miras alır */
+  color: inherit;
+  word-wrap: break-word;
 }
 
-/* Koyu temada metinlerin okunabilirliğini artır */
 .post-card.dark .post-text {
   color: #e7e9ea !important;
 }
 
+.post-media-wrapper {
+  /* width: 100% kaldırıldı! */
+  display: inline-block; /* Kutu genişliğini içeriğe (resme) göre ayarlar */
+  max-width: 100%;       /* Kartın dışına taşmasını engeller */
+  max-height: 550px; 
+
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eff3f4;
+  margin-top: 10px;
+  text-align: left;      /* İçeriği sola dayar */
+}
+
+.post-card.dark .post-media-wrapper {
+  background-color: rgba(255, 255, 255, 0.03);
+  border-color: #2f3336;
+}
+
+/* --- RESİM DAVRANIŞI --- */
+.post-image {
+  display: block;        /* Altındaki boşluğu temizler */
+  width: auto;           /* Resmin doğal genişliğini korur */
+  max-width: 100%;       /* Kutuya (dolayısıyla karta) sığdırır */
+  height: auto; 
+  max-height: 550px;     /* Dikey sınırı korur */
+  object-fit: contain;
+}
+
+.post-card img {
+  /* Genişlik Zekası: Resim küçükse kendi boyutunda kalır, büyükse karta sığar */
+  width: auto; 
+  max-width: 100%; 
+  
+  /* Yükseklik Zekası: Oranı bozmaz ve sınırı geçmez */
+  height: auto;
+  max-height: 550px; 
+  
+  object-fit: contain; /* Kesilmeden tam görünüm sağlar */
+  display: block;
+}
+
 /* --- AYIRICI ÇİZGİ (HR) --- */
 .post-card hr {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
   opacity: 0.1;
   border-top: 1px solid #65676b;
 }
@@ -64,4 +106,14 @@
 .post-card.opacity-50 {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* --- MOBİL UYUM --- */
+@media (max-width: 576px) {
+  .post-card {
+    max-width: 100%; 
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+  }
 }

@@ -10,8 +10,6 @@ export default function ProfileHeader({
 }) {
   const defaultBanner =
     "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80";
-  const defaultAvatar =
-    "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png";
 
   const isDark = theme === "dark";
 
@@ -33,7 +31,9 @@ export default function ProfileHeader({
           {/* Avatar Kısmı */}
           <div style={{ marginTop: "-75px" }}>
             <img
-              src={profile.profileImage || defaultAvatar}
+              src={
+                profile.profileImage || import.meta.env.VITE_DEFAULT_AVATAR_URL
+              }
               alt={profile.username}
               className={`rounded-circle border border-4 shadow-sm ${isDark ? "border-black" : "border-white"}`}
               style={{

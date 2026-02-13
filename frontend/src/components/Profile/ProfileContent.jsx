@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUserPosts } from "../../api/user.api";
 import { getUserLikedPosts } from "../../api/post.api";
+import { useTheme } from "../../context/ThemeContext";
 import PostCard from "../Post/PostCard";
 import ProfileSavedCollections from "./ProfileSavedCollections";
 
@@ -9,11 +10,13 @@ export default function ProfileContent({
   id,
   activeCollection,
   setActiveCollection,
-  theme,
 }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { theme } = useTheme();
+
   const collections = ["Tümü", "Manzaralar", "Yazılım", "Komik"];
+  const isDark = theme === "dark";
 
   const loadData = async () => {
     if (!id || id === "undefined") return;
@@ -48,7 +51,9 @@ export default function ProfileContent({
           setActiveCollection={setActiveCollection}
           collections={collections}
         />
-        <div className="text-center py-5 text-muted">
+        <div
+          className={`text-center py-5 ${isDark ? "text-secondary" : "text-muted"}`}
+        >
           <i className="bi bi-folder2-open fs-1"></i>
           <h5 className="mt-3">"{activeCollection}" Klasörü Boş</h5>
         </div>
@@ -64,15 +69,12 @@ export default function ProfileContent({
         </div>
       ) : data.length > 0 ? (
         data.map((post) => (
-          <PostCard
-            key={post._id}
-            post={post}
-            onUpdate={loadData}
-            theme={theme}
-          />
+          <PostCard key={post._id} post={post} onUpdate={loadData} />
         ))
       ) : (
-        <div className="text-center py-5 text-muted">
+        <div
+          className={`text-center py-5 ${isDark ? "text-secondary" : "text-muted"}`}
+        >
           <i
             className={`bi ${activeTab === "posts" ? "bi-chat-square-text" : "bi-heart-break"} fs-1`}
           ></i>

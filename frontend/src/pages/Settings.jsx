@@ -1,40 +1,33 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { updateUserSettings } from "../api/user.api";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import "../styles/Settings.css";
 
 export default function Settings() {
   const { user, setUser } = useAuth();
-
-  const [theme, setTheme] = useState(
-    user?.settings?.theme || localStorage.getItem("theme") || "dark",
-  );
+  const { theme, toggleTheme } = useTheme();
   const [loading, setLoading] = useState(false);
 
   const changeTheme = async (newTheme) => {
+    if (loading || theme === newTheme) return;
+
     try {
+      setLoading(true);
       const res = await updateUserSettings(newTheme);
 
-      localStorage.setItem("theme", newTheme);
+      toggleTheme(newTheme);
 
       setUser((prevUser) => ({
         ...prevUser,
         settings: res.data,
       }));
-
-      window.dispatchEvent(new Event("storage"));
-      setTheme(newTheme);
     } catch (error) {
-      console.error("Hata:", error);
+      console.error("Tema güncellenirken hata oluştu:", error);
+    } finally {
+      setLoading(false);
     }
   };
-
-  useEffect(() => {
-    if (user?.settings?.theme) {
-      setTheme(user.settings.theme);
-      localStorage.setItem("theme", user.settings.theme);
-    }
-  }, [user]);
 
   return (
     <div
@@ -56,7 +49,6 @@ export default function Settings() {
               className={`theme-option p-3 rounded-3 d-flex align-items-center justify-content-between ${
                 theme === "light" ? "active" : ""
               } ${loading ? "opacity-50" : ""}`}
-              style={{ pointerEvents: loading ? "none" : "auto" }}
             >
               <div className="d-flex align-items-center gap-3">
                 <i
@@ -74,7 +66,6 @@ export default function Settings() {
               className={`theme-option p-3 rounded-3 d-flex align-items-center justify-content-between ${
                 theme === "dark" ? "active" : ""
               } ${loading ? "opacity-50" : ""}`}
-              style={{ pointerEvents: loading ? "none" : "auto" }}
             >
               <div className="d-flex align-items-center gap-3">
                 <i className="bi bi-moon-stars-fill fs-4 text-primary"></i>

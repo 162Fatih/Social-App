@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getUserProfile, followUser, unfollowUser } from "../api/user.api";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 
 import ProfileHeader from "../components/Profile/ProfileHeader";
 import ProfileTabs from "../components/Profile/ProfileTabs";
@@ -11,6 +12,7 @@ import RightAside from "../components/Layout/RightAside";
 export default function ProfilePage() {
   const { id } = useParams();
   const { user: currentUser } = useAuth();
+  const { theme } = useTheme();
 
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,16 +21,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("posts");
   const [activeCollection, setActiveCollection] = useState("Tümü");
 
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setTheme(localStorage.getItem("theme") || "light");
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  const isDark = theme === "dark";
 
   const fetchProfile = async () => {
     if (!id || id === "undefined") return;
@@ -75,30 +68,34 @@ export default function ProfilePage() {
   if (loading)
     return (
       <div
-        className={`text-center mt-5 min-vh-100 ${theme === "dark" ? "bg-black text-white" : "bg-white"}`}
+        className={`d-flex justify-content-center align-items-center min-vh-100 ${
+          isDark ? "bg-black text-white" : "bg-white text-dark"
+        }`}
       >
-        <div className="spinner-border text-primary mt-5"></div>
+        <div className="spinner-border text-primary"></div>
       </div>
     );
 
   if (error)
     return (
       <div
-        className={`min-vh-100 p-5 ${theme === "dark" ? "bg-black text-white" : "bg-white"}`}
+        className={`d-flex justify-content-center align-items-center min-vh-100 ${
+          isDark ? "bg-black text-white" : "bg-white text-dark"
+        }`}
       >
-        <div className="alert alert-danger">{error}</div>
+        <div className="alert alert-danger w-50 text-center">{error}</div>
       </div>
     );
 
   return (
     <div
-      className={`container-fluid p-0 ${theme === "dark" ? "bg-black text-white" : "bg-white text-dark"}`}
+      className={`container-fluid p-0 ${isDark ? "bg-black text-white" : "bg-white text-dark"}`}
     >
       <div className="container-fluid">
         <div className="row justify-content-center">
           <div
             className={`col-12 col-md-8 col-lg-6 border-start border-end p-0 min-vh-100 ${
-              theme === "dark" ? "border-secondary" : ""
+              isDark ? "border-secondary" : ""
             }`}
             style={{ backgroundColor: "transparent" }}
           >
@@ -110,14 +107,9 @@ export default function ProfilePage() {
               )}
               handleFollowToggle={handleFollowToggle}
               btnLoading={btnLoading}
-              theme={theme}
             />
 
-            <ProfileTabs
-              activeTab={activeTab}
-              setActiveTab={setActiveTab}
-              theme={theme}
-            />
+            <ProfileTabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
             <div className="px-4 py-3">
               <ProfileContent
@@ -125,13 +117,12 @@ export default function ProfilePage() {
                 id={id}
                 activeCollection={activeCollection}
                 setActiveCollection={setActiveCollection}
-                theme={theme}
               />
             </div>
           </div>
 
           <div className="col-lg-4 d-none d-lg-block">
-            <RightAside theme={theme} />
+            <RightAside />
           </div>
         </div>
       </div>

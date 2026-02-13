@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { createPost } from "../../api/post.api";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 import { Link } from "react-router-dom";
 
 import FormImagePreview from "../Component/FormImagePreview";
@@ -8,7 +9,7 @@ import Avatar from "../Component/Avatar";
 
 import "../../styles/PostForm.css";
 
-export default function PostForm({ onPostCreated, theme }) {
+export default function PostForm({ onPostCreated }) {
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -16,6 +17,7 @@ export default function PostForm({ onPostCreated, theme }) {
 
   const fileInputRef = useRef(null);
   const { user } = useAuth();
+  const { theme } = useTheme();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -74,7 +76,7 @@ export default function PostForm({ onPostCreated, theme }) {
 
           <form onSubmit={handleSubmit}>
             <textarea
-              className="form-control border-0 shadow-none fs-5 p-0 mt-1 post-textarea"
+              className={`form-control border-0 shadow-none fs-5 p-0 mt-1 post-textarea ${theme === "dark" ? "text-white" : "text-dark"}`}
               rows="2"
               placeholder="Gönderi paylaş..."
               style={{
@@ -88,11 +90,13 @@ export default function PostForm({ onPostCreated, theme }) {
 
             <FormImagePreview preview={imagePreview} onRemove={removeImage} />
 
-            <div className="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+            <div
+              className={`d-flex justify-content-between align-items-center mt-3 pt-2 border-top ${theme === "dark" ? "border-secondary" : ""}`}
+            >
               <div className="d-flex align-items-center">
                 <button
                   type="button"
-                  className="btn btn-link text-primary p-2 border-0 shadow-none rounded-circle hover-bg-light"
+                  className={`btn btn-link text-primary p-2 border-0 shadow-none rounded-circle ${theme === "dark" ? "hover-bg-dark" : "hover-bg-light"}`}
                   onClick={() => fileInputRef.current.click()}
                 >
                   <i className="bi bi-image fs-5"></i>

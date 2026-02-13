@@ -32,7 +32,6 @@ function App() {
         <div className="d-flex flex-column flex-grow-1">
           <main className="flex-grow-1 p-0 bg-light">
             <Routes>
-              {/* <Route path="/" element={<Navigate to="/home" replace />} /> */}
               <Route
                 path="/"
                 element={

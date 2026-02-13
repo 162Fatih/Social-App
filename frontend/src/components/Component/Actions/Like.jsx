@@ -2,17 +2,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../../context/AuthContext";
+import { useTheme } from "../../../context/ThemeContext";
 import api from "../../../api/axios";
 
 import "../../../styles/Like.css";
 
-export default function Like({
-  postId,
-  likedByCurrentUser,
-  likesCount,
-  theme,
-}) {
+export default function Like({ postId, likedByCurrentUser, likesCount }) {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const navigate = useNavigate();
 
   const [isLiked, setIsLiked] = useState(likedByCurrentUser);
@@ -58,7 +55,6 @@ export default function Like({
         ${theme === "dark" ? "dark-theme" : ""} 
         ${isLoading ? "disabled" : ""}`}
     >
-      {/* İkonlar aynı kalıyor, CSS ile renklerini yöneteceğiz */}
       <i className="bi bi-hand-thumbs-up fs-4 outline-icon"></i>
       <i className="bi bi-hand-thumbs-up-fill fs-4 fill-icon"></i>
 

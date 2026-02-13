@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import Avatar from "./Avatar";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function UserInfo({
   userId,
@@ -7,8 +8,10 @@ export default function UserInfo({
   profileImage,
   createdAt = null,
   formatTime = null,
-  theme,
 }) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   return (
     <div className="d-flex align-items-center">
       <Avatar userId={userId} profileImage={profileImage} size="45px" />
@@ -17,7 +20,7 @@ export default function UserInfo({
         <Link
           to={`/profile/${userId}`}
           className={`text-decoration-none d-block ${
-            theme === "dark" ? "text-white" : "text-dark"
+            isDark ? "text-white" : "text-dark"
           }`}
         >
           <h6 className="fw-bold m-0" style={{ fontSize: "0.95rem" }}>
@@ -27,7 +30,7 @@ export default function UserInfo({
 
         {createdAt && formatTime && (
           <small
-            className={`${theme === "dark" ? "text-secondary" : "text-muted"}`}
+            className={`${isDark ? "text-secondary" : "text-muted"}`}
             style={{ fontSize: "0.75rem" }}
           >
             {formatTime(createdAt)}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate, Link } from "react-router-dom"; // Link eklendi
+import { useNavigate, Link } from "react-router-dom";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -9,18 +9,16 @@ export default function RegisterPage() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(""); // Hata durumu eklendi
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(""); // Her denemede hatayı temizle
 
     try {
-      // Register fonksiyonu genellikle başarılı olursa token döner ve context'i günceller
       await register(username, email, password);
       console.log("Kayıt başarılı");
 
-      // Kayıt başarılıysa ana sayfaya gönder
       navigate("/home");
     } catch (err) {
       console.error(err);
@@ -30,7 +28,6 @@ export default function RegisterPage() {
     }
   };
 
-  // Misafir Girişi Fonksiyonu
   const handleGuestLogin = () => {
     navigate("/home");
   };
@@ -43,13 +40,11 @@ export default function RegisterPage() {
       >
         <h2 className="text-center mb-4">Kayıt Ol</h2>
 
-        {/* Hata Mesajı */}
         {error && (
           <div className="alert alert-danger p-2 text-center">{error}</div>
         )}
 
         <form onSubmit={handleSubmit}>
-          {/* Kullanıcı Adı */}
           <div className="mb-3">
             <input
               type="text"
@@ -61,7 +56,6 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Email */}
           <div className="mb-3">
             <input
               type="email"
@@ -73,7 +67,6 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Şifre */}
           <div className="mb-3">
             <input
               type="password"
@@ -85,13 +78,11 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Kayıt Butonu */}
           <button type="submit" className="btn btn-primary w-100">
             Kayıt Ol
           </button>
         </form>
 
-        {/* Giriş Linki */}
         <div className="text-center mt-3">
           <small className="text-muted">
             Zaten hesabın var mı?{" "}
@@ -103,7 +94,6 @@ export default function RegisterPage() {
 
         <hr className="my-4" />
 
-        {/* --- MİSAFİR BUTONU --- */}
         <div className="d-grid">
           <button
             onClick={handleGuestLogin}

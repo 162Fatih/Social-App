@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { getExplorePosts } from "../../api/post.api";
+import { useTheme } from "../../context/ThemeContext";
 import PostCard from "./PostCard";
 import Loading from "../Loading";
 
-export default function ExplorePostList({ theme }) {
+export default function ExplorePostList() {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { theme } = useTheme();
 
   const fetchPosts = async () => {
     setIsLoading(true);
@@ -24,19 +26,22 @@ export default function ExplorePostList({ theme }) {
   }, []);
 
   if (isLoading) {
-    return <Loading message="Keşfet Yükleniyor..." theme={theme} />;
+    return <Loading message="Keşfet Yükleniyor..." />;
   }
 
   return (
     <div className="mt-3">
-      {posts.map((post) => (
-        <PostCard
-          key={post._id}
-          post={post}
-          onUpdate={fetchPosts}
-          theme={theme}
-        />
-      ))}
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <PostCard key={post._id} post={post} onUpdate={fetchPosts} />
+        ))
+      ) : (
+        <div
+          className={`text-center py-5 ${theme === "dark" ? "text-secondary" : "text-muted"}`}
+        >
+          Keşfedilecek bir şey bulunamadı.
+        </div>
+      )}
     </div>
   );
 }

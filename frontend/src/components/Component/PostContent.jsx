@@ -11,7 +11,6 @@ export default function PostContent({ text, image }) {
       )}
 
       {image && (
-        /* CSS'teki dinamik boyutlandırma kurallarının çalışması için bu class şart */
         <div className="post-media-wrapper mb-3">
           <img
             src={
@@ -20,7 +19,6 @@ export default function PostContent({ text, image }) {
                 : `${import.meta.env.VITE_BACKEND_URL}${image}`
             }
             alt="Post content"
-            /* Inline stilleri temizleyip yönetimi tamamen CSS'e bıraktık */
             className="post-image"
           />
         </div>

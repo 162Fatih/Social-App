@@ -7,7 +7,6 @@ export default function PostActions({
   likedByCurrentUser,
   likesCount,
   commentsCount,
-  theme,
 }) {
   return (
     <div className="d-flex justify-content-between align-items-center pt-1">
@@ -16,17 +15,15 @@ export default function PostActions({
           postId={postId}
           likedByCurrentUser={likedByCurrentUser}
           likesCount={likesCount}
-          theme={theme}
         />
 
         <CommentButton
           commentsCount={commentsCount}
           onClick={() => console.log("Yorumlar açılıyor...")}
-          theme={theme}
         />
       </div>
 
-      <SaveButton theme={theme} />
+      <SaveButton isSavedInitial={false} />
     </div>
   );
 }

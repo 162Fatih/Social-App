@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function ProfileHeader({
   profile,
@@ -6,16 +7,15 @@ export default function ProfileHeader({
   isFollowing,
   handleFollowToggle,
   btnLoading,
-  theme,
 }) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const defaultBanner =
     "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80";
 
-  const isDark = theme === "dark";
-
   return (
     <>
-      {/* Banner Kısmı */}
       <div
         style={{
           height: "200px",
@@ -28,7 +28,6 @@ export default function ProfileHeader({
 
       <div className="px-4" style={{ position: "relative" }}>
         <div className="d-flex justify-content-between align-items-end">
-          {/* Avatar Kısmı */}
           <div style={{ marginTop: "-75px" }}>
             <img
               src={
@@ -45,7 +44,6 @@ export default function ProfileHeader({
             />
           </div>
 
-          {/* Aksiyon Butonları */}
           <div className="mb-3">
             {isOwnProfile ? (
               <Link
@@ -72,7 +70,6 @@ export default function ProfileHeader({
           </div>
         </div>
 
-        {/* Profil Bilgileri */}
         <div className="mt-3">
           <h2 className={`fw-bold mb-0 ${isDark ? "text-white" : "text-dark"}`}>
             {profile.username}
@@ -83,7 +80,6 @@ export default function ProfileHeader({
             {profile.bio || "Merhaba! Ben Social App kullanıyorum."}
           </p>
 
-          {/* İstatistikler */}
           <div className="d-flex gap-4 mb-4">
             <span className={isDark ? "text-light" : "text-dark"}>
               <span className="fw-bold">{profile.following?.length || 0}</span>{" "}

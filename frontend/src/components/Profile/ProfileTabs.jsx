@@ -1,11 +1,14 @@
-export default function ProfileTabs({ activeTab, setActiveTab, theme }) {
+import { useTheme } from "../../context/ThemeContext";
+
+export default function ProfileTabs({ activeTab, setActiveTab }) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
   const tabs = [
     { id: "posts", label: "Gönderiler" },
     { id: "likes", label: "Beğenilenler" },
     { id: "saved", label: "Kaydedilenler" },
   ];
-
-  const isDark = theme === "dark";
 
   return (
     <div className={`px-4 border-bottom ${isDark ? "border-secondary" : ""}`}>
@@ -16,8 +19,8 @@ export default function ProfileTabs({ activeTab, setActiveTab, theme }) {
               className={`nav-link border-0 rounded-0 py-3 ${
                 activeTab === tab.id
                   ? isDark
-                    ? "active bg-transparent text-white border-bottom border-primary border-3" // Koyu mod aktif
-                    : "active bg-transparent fw-bold border-bottom border-dark border-3" // Açık mod aktif
+                    ? "active bg-transparent text-white border-bottom border-primary border-3"
+                    : "active bg-transparent fw-bold border-bottom border-dark border-3"
                   : isDark
                     ? "text-secondary"
                     : "text-muted"

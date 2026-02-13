@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getHomePosts } from "../api/post.api";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import HomePostList from "../components/Post/HomePostList";
 import PostForm from "../components/Post/PostForm";
 import HomeHeader from "../components/Home/HomeHeader";
@@ -11,17 +12,9 @@ export default function Home() {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const { user } = useAuth();
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setTheme(localStorage.getItem("theme") || "light");
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const fetchPosts = async () => {
     if (!user) return;
@@ -54,43 +47,39 @@ export default function Home() {
 
   return (
     <div
-      className={`min-vh-100 ${theme === "dark" ? "bg-black text-white" : "bg-white text-dark"}`}
+      className={`min-vh-100 ${isDark ? "bg-black text-white" : "bg-white text-dark"}`}
       style={{ transition: "background-color 0.3s ease" }}
     >
       <div className="container-fluid">
         <div className="row justify-content-center">
           <div
-            className={`col-12 col-md-8 col-lg-6 border-start border-end min-vh-100 p-0 ${theme === "dark" ? "border-secondary" : ""}`}
+            className={`col-12 col-md-8 col-lg-6 border-start border-end min-vh-100 p-0 ${isDark ? "border-secondary" : ""}`}
           >
             <div className="px-3">
               {isLoading ? (
                 <div className="pt-5">
-                  <Loading message="Ana Sayfa Yükleniyor..." theme={theme} />
+                  <Loading message="Ana Sayfa Yükleniyor..." />
                 </div>
               ) : (
                 <div className="pt-2">
                   <HomeHeader />
 
                   <div className="mb-4">
-                    <PostForm onPostCreated={fetchPosts} theme={theme} />
+                    <PostForm onPostCreated={fetchPosts} />
                   </div>
 
                   <hr
-                    className={`my-4 opacity-25 ${theme === "dark" ? "text-secondary" : ""}`}
+                    className={`my-4 opacity-25 ${isDark ? "text-secondary border-secondary" : ""}`}
                   />
 
-                  <HomePostList
-                    posts={posts}
-                    fetchPosts={fetchPosts}
-                    theme={theme}
-                  />
+                  <HomePostList posts={posts} fetchPosts={fetchPosts} />
                 </div>
               )}
             </div>
           </div>
 
           <div className="col-lg-4 d-none d-lg-block">
-            <RightAside theme={theme} />
+            <RightAside />
           </div>
         </div>
       </div>

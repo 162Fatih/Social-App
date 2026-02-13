@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { deletePost } from "../../api/post.api";
 import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeContext";
 
 import MeatballsMenu from "../Component/MeatballsMenu";
 import UserInfo from "../Component/UserInfo";
@@ -27,8 +28,9 @@ const formatRelativeTime = (dateString) => {
   return date.toLocaleDateString("tr-TR");
 };
 
-export default function PostCard({ post, onUpdate, theme }) {
+export default function PostCard({ post, onUpdate }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const { theme } = useTheme();
 
   if (!post) return null;
 
@@ -46,7 +48,6 @@ export default function PostCard({ post, onUpdate, theme }) {
 
   return (
     <div
-      // mx-auto ile ortalanır, max-width CSS'den gelir
       className={`post-card mx-auto w-100 ${theme === "dark" ? "dark" : ""} ${isDeleting ? "opacity-50" : ""}`}
     >
       <div className="card-body">
@@ -58,22 +59,11 @@ export default function PostCard({ post, onUpdate, theme }) {
             profileImage={post.profileImage}
             createdAt={post.createdAt}
             formatTime={formatRelativeTime}
-            theme={theme}
           />
-          <MeatballsMenu
-            isOwner={post.isOwner}
-            onDelete={handleDelete}
-            theme={theme}
-          />
+          <MeatballsMenu isOwner={post.isOwner} onDelete={handleDelete} />
         </div>
 
-        {/* İçerik Alanı: Yazı ve Resim */}
         <div className="post-container">
-          {/* NOT: Eğer PostContent içinde resim varsa, 
-            CSS'teki .post-media-wrapper kuralının çalışması için 
-            PostContent bileşeninin içindeki <img> etiketinin 
-            bir <div className="post-media-wrapper"> ile sarmalanmış olması gerekir.
-          */}
           <PostContent text={post.text} image={post.image} />
         </div>
 
@@ -83,13 +73,11 @@ export default function PostCard({ post, onUpdate, theme }) {
           }
         />
 
-        {/* Aksiyonlar: Like, Comment, Save */}
         <PostActions
           postId={post._id}
           likedByCurrentUser={post.likedByCurrentUser}
           likesCount={post.likesCount}
           commentsCount={post.commentsCount}
-          theme={theme}
         />
       </div>
     </div>

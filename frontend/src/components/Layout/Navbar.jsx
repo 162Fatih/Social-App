@@ -1,34 +1,17 @@
-import { useEffect, useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import Avatar from "../Component/Avatar"; // Avatar bileşenini import etmeyi unutma
+import { useTheme } from "../../context/ThemeContext";
+import Avatar from "../Component/Avatar";
 import "../../styles/Navbar.css";
 
 export default function Navbar() {
   const { user } = useAuth();
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
-
-  useEffect(() => {
-    const handleStorageChange = () => {
-      setTheme(localStorage.getItem("theme") || "dark");
-    };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
-
-  useEffect(() => {
-    if (!user) {
-      setTheme("light");
-      localStorage.setItem("theme", "light");
-    } else if (user.settings?.theme) {
-      setTheme(user.settings.theme);
-      localStorage.setItem("theme", user.settings.theme);
-    }
-  }, [user]);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   return (
     <div
-      className={`sidebar-container ${theme === "dark" ? "dark-theme" : "light-theme"}`}
+      className={`sidebar-container ${isDark ? "dark-theme" : "light-theme"}`}
     >
       <Link
         to="/"
@@ -79,14 +62,12 @@ export default function Navbar() {
 
       <div className="d-flex align-items-center justify-content-between profile-section">
         <div className="d-flex align-items-center me-2 user-link-container">
-          {/* Avatar kendi içindeki Link'i kullanarak zaten yönlendirme yapıyor */}
           <Avatar
             userId={user?._id}
             profileImage={user?.profileImage}
             size="32px"
           />
 
-          {/* Kullanıcı adını da tıklanabilir yapmak istiyorsan, Link'i sadece isme özel ver */}
           <Link
             to={user ? `/profile/${user._id}` : "/login"}
             className="text-decoration-none"
@@ -109,7 +90,7 @@ export default function Navbar() {
             data-bs-toggle="dropdown"
           ></a>
           <ul
-            className={`dropdown-menu shadow ${theme === "dark" ? "dropdown-menu-dark" : ""}`}
+            className={`dropdown-menu shadow ${isDark ? "dropdown-menu-dark" : ""}`}
             aria-labelledby="dropdownUser1"
           >
             {user ? (

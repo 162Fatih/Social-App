@@ -10,3 +10,6 @@ export const getUserPosts = (userId) => api.get(`/users/${userId}/userposts`);
 
 export const updateUserSettings = (theme) =>
   api.put("/users/settings", { theme });
+
+export const deleteUserAccount = (userId) =>
+  api.delete(`/users/${userId}/delete`);

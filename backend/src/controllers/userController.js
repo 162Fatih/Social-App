@@ -150,10 +150,32 @@ const updateSettings = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "Kullanıcı bulunamadı" });
+    }
+
+    await User.findByIdAndDelete(userId);
+    await Post.deleteMany({ user: userId });
+
+    res.json({ message: "Kullanıcı ve tüm gönderileri silindi" });
+  } catch (error) {
+    console.error("Kullanıcı Silme Hatası:", error);
+    res
+      .status(500)
+      .json({ message: "Kullanıcı silinirken sunucu hatası oluştu" });
+  }
+};
+
 module.exports = {
   getUserProfile,
   getUserPosts,
   followUser,
   unfollowUser,
   updateSettings,
+  deleteUser,
 };

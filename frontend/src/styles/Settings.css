@@ -1,69 +1,110 @@
 /* Settings.css */
 
 /* Genel Konteyner */
-.settings-container {
-  max-width: 650px;
-  margin: 0 auto;
-  transition: all 0.3s ease;
+.container {
+  max-width: 1140px;
 }
 
-/* Ayar Kartları */
-.settings-card {
-  border-radius: 16px;
-  transition: all 0.3s ease;
-  border: 1px solid #eff3f4; /* Açık tema çerçeve */
+/* Sol Menü (Sidebar) */
+.sidebar-link {
+  border-radius: 12px !important;
+  margin-bottom: 5px;
+  padding: 1rem 1.25rem !important; /* Daha büyük tıklama alanı */
+  transition: all 0.25s ease !important;
 }
 
-/* KOYU TEMA KART YAPISI */
-.settings-card.dark {
+.list-group-item:hover:not(.active) {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  transform: translateX(5px); /* Hover efekti */
+}
+
+.bg-dark .list-group-item:hover:not(.active) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.list-group-item.active {
+  font-weight: 600;
+  background-color: #1d9bf0 !important;
+  color: white !important;
+}
+
+/* Kartlar */
+.card {
+  border-radius: 20px;
+}
+
+.bg-white {
+  border: 1px solid #eff3f4 !important;
+}
+
+.bg-dark {
   background-color: #000000 !important;
   border: 1px solid #2f3336 !important;
-  color: #ffffff !important;
 }
 
-/* Tema Seçenek Kutuları */
-.theme-option {
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 2px solid transparent;
+/* Tema Kartları */
+.theme-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* Açık Tema Hover & Seçili Durum */
-.theme-option:hover {
+.theme-card:hover {
   background-color: rgba(0, 0, 0, 0.05);
-}
-
-.theme-option.active {
+  transform: translateY(-4px);
   border-color: #1d9bf0 !important;
-  background-color: rgba(29, 155, 240, 0.05);
 }
 
-/* KOYU TEMA SEÇENEK KUTULARI */
-.settings-card.dark .theme-option {
+.bg-dark .theme-card {
   background-color: #16181c;
 }
 
-.settings-card.dark .theme-option:hover {
+.bg-dark .theme-card:hover {
   background-color: #1d1f23;
 }
 
-.settings-card.dark .theme-option.active {
-  background-color: rgba(29, 155, 240, 0.1);
-  border-color: #1d9bf0 !important;
+.theme-card.border-primary {
+  background-color: rgba(29, 155, 240, 0.05) !important;
 }
 
-/* Yazı Renkleri (Hassas Ayar) */
-.settings-card .text-secondary-custom {
-  color: #536471; /* Açık tema gri yazı */
+/* Animasyonlar */
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
 }
 
-.settings-card.dark .text-secondary-custom {
-  color: #71767b; /* Koyu tema gri yazı */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Başlıklar */
-.settings-title {
-  font-weight: 800;
-  font-size: 1.25rem;
+.spin {
+  display: inline-block;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Mobil Uyumluluk */
+@media (max-width: 768px) {
+  .list-group {
+    flex-direction: row;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+    padding-bottom: 5px;
+  }
+  
+  .sidebar-link {
+    white-space: nowrap;
+    text-align: center;
+    flex: 1;
+    margin-bottom: 0;
+    margin-right: 8px;
+    padding: 0.75rem !important;
+  }
+
+  .list-group-item:hover:not(.active) {
+    transform: none;
+  }
 }

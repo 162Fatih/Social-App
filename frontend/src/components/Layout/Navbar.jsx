@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
 import Avatar from "../Component/Avatar";
+import PostModal from "../Post/PostModal";
 import "../../styles/Navbar.css";
 
 export default function Navbar() {
   const { user } = useAuth();
   const { theme } = useTheme();
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
   const isDark = theme === "dark";
 
   return (
@@ -53,7 +56,12 @@ export default function Navbar() {
 
         {user && (
           <li>
-            <button className="btn-post-custom shadow">Gönderi Paylaş</button>
+            <button
+              className="btn-post-custom shadow"
+              onClick={() => setIsPostModalOpen(true)}
+            >
+              Gönderi Paylaş
+            </button>
           </li>
         )}
       </ul>
@@ -137,6 +145,14 @@ export default function Navbar() {
           </ul>
         </div>
       </div>
+
+      <PostModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        onPostCreated={() => {
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

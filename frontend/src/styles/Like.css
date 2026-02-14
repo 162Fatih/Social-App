@@ -2,7 +2,6 @@
 .like-btn {
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #6c757d; /* Varsayılan Açık Tema Gri */
 }
 
 /* Hover Efekti (Büyüme) */
@@ -19,7 +18,7 @@
 /* --- ETKİLEŞİM DURUMLARI (Açık ve Koyu Ortak) --- */
 .like-btn:hover,
 .like-btn.liked {
-  color: #0d6efd !important; /* Beğenildiğinde veya hoverda her zaman Mavi */
+  color: #1d9bf0 !important; /* Beğenildiğinde veya hoverda her zaman Mavi */
 }
 
 .like-btn.disabled {

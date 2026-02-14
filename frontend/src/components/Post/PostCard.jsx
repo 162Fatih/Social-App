@@ -1,40 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Yönlendirme için eklendi
 import { deletePost } from "../../api/post.api";
-import { useAuth } from "../../context/AuthContext";
+import { addComment } from "../../api/comment.api";
 import { useTheme } from "../../context/ThemeContext";
+import { formatRelativeTime } from "../Component/DateInfo";
 
 import MeatballsMenu from "../Component/MeatballsMenu";
 import UserInfo from "../Component/UserInfo";
 import PostContent from "../Component/PostContent";
 import PostActions from "../Component/Actions/PostActions";
+import CommentModal from "../Comment/CommentModal";
 
 import "../../styles/PostCard.css";
 
-const formatRelativeTime = (dateString) => {
-  if (!dateString) return "Yeni gönderi";
-
-  const now = new Date();
-  const date = new Date(dateString);
-  const diffInSeconds = Math.floor((now - date) / 1000);
-  const diffInHours = Math.floor(diffInSeconds / 3600);
-  const diffInDays = Math.floor(diffInHours / 24);
-
-  if (diffInSeconds < 60) return "Şimdi";
-  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} dk önce`;
-  if (diffInHours < 24) return `${diffInHours} sa önce`;
-  if (diffInDays < 7) return `${diffInDays} gün önce`;
-  if (diffInDays === 7) return "1 hafta önce";
-
-  return date.toLocaleDateString("tr-TR");
-};
-
-export default function PostCard({ post, onUpdate }) {
+export default function PostCard({ post, onUpdate, isDetailView = false }) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const { theme } = useTheme();
+  const navigate = useNavigate();
+
+  const [localCommentsCount, setLocalCommentsCount] = useState(
+    post?.commentsCount || 0,
+  );
+
+  useEffect(() => {
+    setLocalCommentsCount(post?.commentsCount || 0);
+  }, [post?.commentsCount]);
 
   if (!post) return null;
 
-  const handleDelete = async () => {
+  const handleCardClick = () => {
+    if (isDetailView || isDeleting) return;
+    navigate(`/post/${post._id}`);
+  };
+
+  const handleDelete = async (e) => {
+    if (e) e.stopPropagation();
+
     if (!window.confirm("Bu postu silmek istediğine emin misin?")) return;
     try {
       setIsDeleting(true);
@@ -46,40 +48,75 @@ export default function PostCard({ post, onUpdate }) {
     }
   };
 
+  const handleCommentSubmit = (commentData) => {
+    const { text, image } = commentData;
+    const formData = new FormData();
+    formData.append("text", text);
+    if (image) formData.append("image", image);
+
+    addComment(post._id, formData)
+      .then(() => {
+        setLocalCommentsCount((prev) => prev + 1);
+        setIsCommentModalOpen(false);
+        onUpdate?.();
+      })
+      .catch((error) => {
+        console.error("Yorum hatası:", error);
+      });
+  };
+
   return (
-    <div
-      className={`post-card mx-auto w-100 ${theme === "dark" ? "dark" : ""} ${isDeleting ? "opacity-50" : ""}`}
-    >
-      <div className="card-body">
-        {/* Üst Kısım: Kullanıcı bilgisi ve menü */}
-        <div className="d-flex justify-content-between align-items-center mb-2">
-          <UserInfo
-            userId={post.userId}
-            username={post.username}
-            profileImage={post.profileImage}
-            createdAt={post.createdAt}
-            formatTime={formatRelativeTime}
+    <>
+      <div
+        onClick={handleCardClick}
+        className={`post-card mx-auto w-100 ${theme === "dark" ? "dark" : ""} ${
+          isDeleting ? "opacity-50" : ""
+        } ${!isDetailView ? "clickable-card" : ""}`}
+        style={{ cursor: !isDetailView ? "pointer" : "default" }}
+      >
+        <div className="card-body">
+          <div className="d-flex justify-content-between align-items-center mb-2">
+            <UserInfo
+              userId={post.userId}
+              username={post.username}
+              profileImage={post.profileImage}
+              createdAt={post.createdAt}
+              formatTime={formatRelativeTime}
+            />
+            {/* stopPropagation MeatballsMenu içinde veya burada handle edilmeli */}
+            <div onClick={(e) => e.stopPropagation()}>
+              <MeatballsMenu isOwner={post.isOwner} onDelete={handleDelete} />
+            </div>
+          </div>
+
+          <div className="post-container">
+            <PostContent text={post.text} image={post.image} />
+          </div>
+
+          <hr
+            className={
+              theme === "dark" ? "border-secondary opacity-25" : "opacity-25"
+            }
           />
-          <MeatballsMenu isOwner={post.isOwner} onDelete={handleDelete} />
+
+          <div onClick={(e) => e.stopPropagation()}>
+            <PostActions
+              postId={post._id}
+              likedByCurrentUser={post.likedByCurrentUser}
+              likesCount={post.likesCount}
+              commentsCount={localCommentsCount}
+              onCommentClick={() => setIsCommentModalOpen(true)}
+            />
+          </div>
         </div>
-
-        <div className="post-container">
-          <PostContent text={post.text} image={post.image} />
-        </div>
-
-        <hr
-          className={
-            theme === "dark" ? "border-secondary opacity-25" : "opacity-25"
-          }
-        />
-
-        <PostActions
-          postId={post._id}
-          likedByCurrentUser={post.likedByCurrentUser}
-          likesCount={post.likesCount}
-          commentsCount={post.commentsCount}
-        />
       </div>
-    </div>
+
+      <CommentModal
+        post={post}
+        isOpen={isCommentModalOpen}
+        onClose={() => setIsCommentModalOpen(false)}
+        onSubmit={handleCommentSubmit}
+      />
+    </>
   );
 }

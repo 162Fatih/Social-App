@@ -13,7 +13,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // Her denemede hatayı temizle
+    setError("");
 
     try {
       await register(username, email, password);

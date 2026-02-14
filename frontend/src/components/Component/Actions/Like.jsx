@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../../context/AuthContext";
@@ -7,7 +7,12 @@ import api from "../../../api/axios";
 
 import "../../../styles/Like.css";
 
-export default function Like({ postId, likedByCurrentUser, likesCount }) {
+export default function Like({
+  postId,
+  likedByCurrentUser,
+  likesCount,
+  isComment = false,
+}) {
   const { user } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
@@ -16,7 +21,14 @@ export default function Like({ postId, likedByCurrentUser, likesCount }) {
   const [likeCount, setLikeCount] = useState(likesCount);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLikeClick = async () => {
+  useEffect(() => {
+    setIsLiked(likedByCurrentUser);
+    setLikeCount(likesCount);
+  }, [likedByCurrentUser, likesCount]);
+
+  const handleLikeClick = async (e) => {
+    if (e) e.stopPropagation();
+
     if (!user) {
       navigate("/login");
       return;
@@ -32,13 +44,15 @@ export default function Like({ postId, likedByCurrentUser, likesCount }) {
     setLikeCount(prevLiked ? prevCount - 1 : prevCount + 1);
 
     try {
-      const res = await api.put(`/posts/${postId}/like`);
+      const endpoint = isComment
+        ? `/comments/${postId}/like`
+        : `/posts/${postId}/like`;
+      const res = await api.put(endpoint);
 
       setIsLiked(res.data.liked);
       setLikeCount(res.data.likesCount);
     } catch (error) {
       console.error("Beğeni hatası:", error);
-
       setIsLiked(prevLiked);
       setLikeCount(prevCount);
     } finally {
@@ -48,9 +62,10 @@ export default function Like({ postId, likedByCurrentUser, likesCount }) {
 
   return (
     <button
+      type="button"
       disabled={isLoading}
       onClick={handleLikeClick}
-      className={`btn d-flex align-items-center gap-2 border-0 bg-transparent p-0 like-btn
+      className={`btn d-flex align-items-center gap-2 border-0 bg-transparent p-0 shadow-none like-btn
         ${isLiked ? "liked" : ""}
         ${theme === "dark" ? "dark-theme" : ""} 
         ${isLoading ? "disabled" : ""}`}

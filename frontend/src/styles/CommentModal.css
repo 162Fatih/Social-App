@@ -1,0 +1,136 @@
+/* CommentModal.css */
+.comment-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(91, 112, 131, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 50px;
+  z-index: 2000;
+}
+
+.comment-modal-content {
+  width: 100%;
+  max-width: 600px;
+  border-radius: 16px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+/* Tema Arka Planları */
+.comment-modal-content.bg-black {
+  background-color: #000000 !important;
+  border: 1px solid #333639;
+}
+
+.comment-modal-content.bg-white {
+  background-color: #ffffff !important;
+  border: 1px solid #cfd9de;
+}
+
+/* X Tarzı Dikey Bağlantı Çizgisi */
+.reply-line {
+  width: 2px;
+  background-color: #333639;
+  flex-grow: 1;
+  margin: 4px 0;
+  min-height: 20px;
+}
+
+.comment-modal-overlay.dark .reply-line {
+  background-color: #333639;
+}
+
+.comment-modal-overlay:not(.dark) .reply-line {
+  background-color: #cfd9de;
+}
+
+/* Post Detayları & Profil Linki */
+.hover-underline:hover {
+  text-decoration: underline !important;
+}
+
+/* Yanıtlanan Postun Görseli */
+.modal-post-image-container {
+  max-width: 100%;
+  max-height: 250px;
+  overflow: hidden;
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.modal-post-image-container img {
+  max-height: 250px;
+  width: auto;
+  object-fit: contain;
+  border: 1px solid rgba(128, 128, 128, 0.2);
+}
+
+/* Header Ayarları */
+.modal-header-custom {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: inherit;
+}
+
+/* Textarea Özelleştirme */
+textarea {
+  resize: none !important;
+  outline: none;
+  min-height: 60px;
+}
+
+textarea::placeholder {
+  color: #71767b;
+  opacity: 1;
+}
+
+/* Alt Bölüm Ayırıcı Çizgi */
+.my-reply-section .border-top {
+  border-top: 1px solid rgba(128, 128, 128, 0.2) !important;
+}
+
+/* Paylaş (Yanıtla) Butonu */
+.btn-primary.rounded-pill {
+  padding-left: 20px;
+  padding-right: 20px;
+  background-color: #1d9bf0;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.btn-primary.rounded-pill:hover:not(:disabled) {
+  background-color: #1a8cd8;
+}
+
+.btn-primary.rounded-pill:disabled {
+  background-color: #1d9bf0;
+  opacity: 0.5;
+}
+
+/* Animasyonlar */
+.comment-modal-content {
+  animation: modalAppear 0.2s ease-out;
+}
+
+@keyframes modalAppear {
+  from { opacity: 0; transform: translateY(-20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Kaydırma Çubuğu Gizleme */
+.comment-modal-content::-webkit-scrollbar { display: none; }
+.comment-modal-content { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Mobil Uyumluluk */
+@media (max-width: 576px) {
+  .comment-modal-overlay { padding-top: 0; }
+  .comment-modal-content { max-width: 100%; height: 100vh; border-radius: 0; }
+}

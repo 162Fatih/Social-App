@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { getUserPosts } from "../../api/user.api";
-import { getUserLikedPosts } from "../../api/post.api";
+import { getLikedContent } from "../../api/post.api";
 import { useTheme } from "../../context/ThemeContext";
 import PostCard from "../Post/PostCard";
+import CommentCard from "../Comment/CommentCard";
 import ProfileSavedCollections from "./ProfileSavedCollections";
 
 export default function ProfileContent({
@@ -26,7 +27,7 @@ export default function ProfileContent({
       const res =
         activeTab === "posts"
           ? await getUserPosts(id)
-          : await getUserLikedPosts(id);
+          : await getLikedContent(id);
 
       setData(res.data || []);
     } catch (err) {
@@ -68,9 +69,23 @@ export default function ProfileContent({
           <div className="spinner-border spinner-border-sm text-primary"></div>
         </div>
       ) : data.length > 0 ? (
-        data.map((post) => (
-          <PostCard key={post._id} post={post} onUpdate={loadData} />
-        ))
+        data.map((item) => {
+          if (item.isComment) {
+            return (
+              <CommentCard
+                key={item._id}
+                comment={{
+                  ...item,
+                  userId: item.userId || item.user?._id,
+                  username: item.username || item.user?.username,
+                  profileImage: item.profileImage || item.user?.profileImage,
+                }}
+                onUpdate={loadData}
+              />
+            );
+          }
+          return <PostCard key={item._id} post={item} onUpdate={loadData} />;
+        })
       ) : (
         <div
           className={`text-center py-5 ${isDark ? "text-secondary" : "text-muted"}`}

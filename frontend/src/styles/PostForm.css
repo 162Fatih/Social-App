@@ -17,10 +17,15 @@
 .post-form-card .username-link {
   color: #000000;
   transition: color 0.3s ease;
+  text-decoration: none;
 }
 
 .post-form-card.dark .username-link {
   color: #ffffff !important;
+}
+
+.username-link:hover {
+  text-decoration: underline;
 }
 
 /* Yazı Alanı (Textarea) */
@@ -28,24 +33,21 @@
   color: #000000;
   transition: color 0.3s ease;
   font-weight: 400;
+  line-height: 1.5;
 }
 
 .post-form-card.dark .post-textarea {
   color: #e7e9ea !important;
 }
 
-/* --- PLACEHOLDER (NELER OLUYOR?) RENKLERİ --- */
-
-/* Açık Tema Placeholder */
+/* --- PLACEHOLDER RENKLERİ --- */
 .post-textarea::placeholder {
   color: #536471;
   opacity: 1;
 }
 
-/* Koyu Tema Placeholder */
 .post-form-card.dark .post-textarea::placeholder {
   color: #71767b !important;
-  opacity: 1;
 }
 
 /* Alt Bölümdeki Ayırıcı Çizgi */
@@ -58,30 +60,24 @@
   border-top: 1px solid #2f3336 !important;
 }
 
-/* --- RESİM EKLEME BUTONU (TAM YUVARLAK DÜZENLEME) --- */
-.post-form-card .hover-bg-light {
-  width: 38px;          /* Sabit Genişlik */
-  height: 38px;         /* Sabit Yükseklik */
-  padding: 0 !important; /* Bootstrap padding'ini sıfırla */
-  display: inline-flex !important; /* İkonu ortalamak için */
-  align-items: center;
-  justify-content: center;
-  border-radius: 50% !important; /* Kusursuz yuvarlak */
-  transition: background-color 0.2s ease;
-  text-decoration: none !important;
+/* Paylaş Butonu Özelleştirmeleri */
+.post-form-card .btn-primary {
+  background-color: #1d9bf0;
+  border: none;
+  transition: background-color 0.2s;
 }
 
-.post-form-card .hover-bg-light:hover {
-  background-color: rgba(15, 20, 25, 0.1) !important;
+.post-form-card .btn-primary:hover:not(:disabled) {
+  background-color: #1a8cd8;
 }
 
-/* Koyu Tema Hover - Mavi tonu */
-.post-form-card.dark .hover-bg-light:hover {
-  background-color: rgba(29, 155, 240, 0.1) !important;
-}
-
-/* Paylaş Butonu Devre Dışı Durumu */
-.btn-primary:disabled {
+.post-form-card .btn-primary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* Form içindeki görsel önizleme alanı için ek boşluk */
+.post-form-card .image-preview-wrapper {
+  margin-top: 12px;
+  position: relative;
 }

@@ -1,39 +1,39 @@
 /* CommentButton.css */
 
 .comment-btn {
-  /* Buton Sıfırlama */
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.25rem !important;
   cursor: pointer;
   transition: all 0.2s ease;
-  
-  /* AÇIK TEMA VARSAYILAN (Gri) */
-  color: #65676b !important; 
-  text-decoration: none !important;
 }
 
-/* Sadece Hover Durumu (Mavi) */
+/* İkon Kontrolleri */
+.comment-btn .fill-icon {
+  display: none; /* Varsayılan olarak dolu ikon gizli */
+}
+
+/* Hover Durumu */
 .comment-btn:hover {
-  color: #1d9bf0 !important;
   transform: scale(1.1);
+  color: #1d9bf0 !important;
+}
+
+.comment-btn:hover .outline-icon {
+  display: none; /* Boş ikonu gizle */
+}
+
+.comment-btn:hover .fill-icon {
+  display: inline-block; /* Dolu ikonu göster */
 }
 
 /* --- KOYU TEMA --- */
-/* Beğenilmemiş/Normal duruşta Beyaz */
 .comment-btn.dark-theme {
-  color: #e7e9ea !important;
+  color: #e7e9ea !important; /* Koyu temada yazı ve ikon beyazımsı */
 }
 
-/* Koyu Temada Hover yine Mavi */
 .comment-btn.dark-theme:hover {
-  color: #1d9bf0 !important;
+  color: #1d9bf0 !important; /* Koyu temada hover yine mavi */
 }
 
-.comment-count {
-  font-size: 0.9rem;
-  font-weight: 600;
+/* Ufak bir etkileşim animasyonu */
+.comment-btn:active {
+  transform: scale(0.95);
 }

@@ -12,6 +12,7 @@ import Register from "./pages/RegisterPage";
 import Profile from "./pages/ProfilePage";
 
 import Settings from "./pages/Settings";
+import PostPage from "./pages/PostPage";
 
 function App() {
   const location = useLocation();
@@ -49,6 +50,7 @@ function App() {
               <Route path="/explore" element={<Explore />} />
               <Route path="/profile/:id" element={<Profile />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/post/:postId" element={<PostPage />} />
             </Routes>
           </main>
         </div>

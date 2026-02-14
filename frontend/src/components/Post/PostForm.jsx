@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { createPost } from "../../api/post.api";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeContext";
@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 
 import FormImagePreview from "../Component/FormImagePreview";
 import Avatar from "../Component/Avatar";
+import ImageUploadButton from "../Component/Actions/ImageUploadButton";
 
 import "../../styles/PostForm.css";
 
@@ -15,22 +16,17 @@ export default function PostForm({ onPostCreated }) {
   const [imagePreview, setImagePreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const fileInputRef = useRef(null);
   const { user } = useAuth();
   const { theme } = useTheme();
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setImagePreview(URL.createObjectURL(file));
-    }
+  const handleImageSelect = (file) => {
+    setImage(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   const removeImage = () => {
     setImage(null);
     setImagePreview(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = async (e) => {
@@ -94,20 +90,7 @@ export default function PostForm({ onPostCreated }) {
               className={`d-flex justify-content-between align-items-center mt-3 pt-2 border-top ${theme === "dark" ? "border-secondary" : ""}`}
             >
               <div className="d-flex align-items-center">
-                <button
-                  type="button"
-                  className={`btn btn-link text-primary p-2 border-0 shadow-none rounded-circle ${theme === "dark" ? "hover-bg-dark" : "hover-bg-light"}`}
-                  onClick={() => fileInputRef.current.click()}
-                >
-                  <i className="bi bi-image fs-5"></i>
-                </button>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  className="d-none"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                />
+                <ImageUploadButton onImageSelect={handleImageSelect} />
               </div>
 
               <button

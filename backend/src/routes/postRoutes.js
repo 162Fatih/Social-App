@@ -1,36 +1,35 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const path = require("path");
 const {
   createPost,
   getPosts,
   getExplore,
   likePost,
   deletePost,
-  getLikedPosts,
+  /*getLikedPosts,*/
+  getPostById,
+  getLikedContent,
 } = require("../controllers/postController");
 const authMiddleware = require("../middleware/authMiddleware");
 const exploreAuthMiddleware = require("../middleware/exploreAuthMiddleware");
+const upload = require("../middleware/multerMiddleware"); // Ortak multer dosyasını içe aktarıyoruz
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage: storage });
-
+// Gönderileri getir (Home)
 router.get("/", authMiddleware, getPosts);
 router.get("/home", authMiddleware, getPosts);
 router.get("/explore", exploreAuthMiddleware, getExplore);
 
+// Yeni gönderi oluştur - Resim desteği upload middleware ile sağlanıyor
 router.post("/create", authMiddleware, upload.single("image"), createPost);
 
+// Beğeni ve silme işlemleri
 router.put("/:id/like", authMiddleware, likePost);
 router.delete("/delete/:id", authMiddleware, deletePost);
-router.get("/user/:userId/likes", authMiddleware, getLikedPosts);
+
+// Kullanıcının beğendiği gönderileri getir
+/*router.get("/user/:userId/likes", authMiddleware, getLikedPosts);*/
+router.get("/user/:userId/likes", authMiddleware, getLikedContent);
+
+router.get("/:id", authMiddleware, getPostById);
 
 module.exports = router;

@@ -7,8 +7,11 @@ const {
   likeComment,
 } = require("../controllers/commentController");
 const authMiddleware = require("../middleware/authMiddleware");
+const upload = require("../middleware/multerMiddleware"); // Ortak dosyadan çekiyoruz
 
-router.post("/:postId", authMiddleware, addComment);
+// Yorum ekleme - Resim desteği aktif
+router.post("/:postId", authMiddleware, upload.single("image"), addComment);
+
 router.get("/:postId", authMiddleware, getComments);
 router.delete("/:id", authMiddleware, deleteComment);
 router.put("/:id/like", authMiddleware, likeComment);

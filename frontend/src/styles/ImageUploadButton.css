@@ -1,0 +1,33 @@
+/* ImageUploadButton.css */
+
+.image-upload-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-upload-btn {
+  width: 38px;
+  height: 38px;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% !important; /* Tam yuvarlak */
+  transition: background-color 0.2s ease;
+  text-decoration: none !important;
+  color: #1d9bf0 !important; /* X Mavisi */
+  background-color: transparent;
+  border: none;
+}
+
+/* Hover Efektleri - Mavi Yuvarlak */
+.image-upload-btn.hover-light:hover,
+.image-upload-btn.hover-dark:hover {
+  background-color: rgba(29, 155, 240, 0.1) !important;
+}
+
+.image-upload-btn i {
+  line-height: 0;
+  font-size: 1.25rem; /* İkon boyutu */
+}

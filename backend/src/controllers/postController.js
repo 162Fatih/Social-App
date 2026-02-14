@@ -1,4 +1,5 @@
 const Post = require("../models/Post");
+const Comment = require("../models/Comment");
 const fs = require("fs");
 const path = require("path");
 
@@ -16,7 +17,7 @@ const createPost = async (req, res) => {
 
     const post = await Post.create({
       user: userId,
-      text: text || "", // Eğer yazı yoksa boş string kaydet
+      text: text || "",
       image: imagePath,
     });
 
@@ -26,6 +27,7 @@ const createPost = async (req, res) => {
       text: post.text,
       image: post.image,
       likesCount: 0,
+      commentsCount: 0, // Yeni postta 0 yorum vardır
     });
   } catch (error) {
     console.error("Hata:", error);
@@ -55,6 +57,7 @@ const getPosts = async (req, res) => {
         text: post.text,
         image: post.image ? `http://localhost:5000${post.image}` : null,
         likesCount: post.likes.length,
+        commentsCount: post.commentsCount || 0, // BURASI EKLENDİ
         likedByCurrentUser,
         isOwner: isOwner,
         createdAt: post.createdAt,
@@ -89,6 +92,7 @@ const getExplore = async (req, res) => {
         text: post.text,
         image: post.image ? `http://localhost:5000${post.image}` : null,
         likesCount: post.likes.length,
+        commentsCount: post.commentsCount || 0, // BURASI EKLENDİ
         likedByCurrentUser,
         isOwner: isOwner,
         createdAt: post.createdAt,
@@ -110,7 +114,6 @@ const likePost = async (req, res) => {
       return res.status(404).json({ message: "Post bulunamadı" });
     }
 
-    //const userId = req.user._id ? req.user._id.toString() : req.user.id.toString();
     const userId = req.user._id.toString();
 
     const alreadyLiked = post.likes.some(
@@ -154,7 +157,6 @@ const deletePost = async (req, res) => {
         if (!err) {
           fs.unlink(imagePath, (err) => {
             if (err) console.error("Resim dosyası silinirken hata:", err);
-            /*else console.log("Resim sunucudan başarıyla silindi:", post.image);*/
           });
         }
       });
@@ -187,6 +189,7 @@ const getLikedPosts = async (req, res) => {
         text: post.text,
         image: post.image ? `http://localhost:5000${post.image}` : null,
         likesCount: post.likes.length,
+        commentsCount: post.commentsCount || 0, // BURASI EKLENDİ
         likedByCurrentUser: currentUserId
           ? post.likes.some((id) => id.toString() === currentUserId)
           : false,
@@ -204,11 +207,128 @@ const getLikedPosts = async (req, res) => {
   }
 };
 
+const getPostById = async (req, res) => {
+  try {
+    const userId = req.user._id.toString();
+
+    // ID'ye göre postu bul ve kullanıcı bilgilerini çek
+    const post = await Post.findById(req.params.id).populate(
+      "user",
+      "username email profileImage",
+    );
+
+    if (!post) {
+      return res.status(404).json({ message: "Post bulunamadı" });
+    }
+
+    // Diğer listeleme fonksiyonlarındaki veri yapısının aynısını kuruyoruz
+    const likedByCurrentUser = userId
+      ? post.likes.some((id) => id.toString() === userId)
+      : false;
+
+    const isOwner = post.user._id.toString() === userId;
+
+    const formattedPost = {
+      _id: post._id,
+      userId: post.user._id,
+      username: post.user.username,
+      profileImage: post.user.profileImage, // Varsa profil resmi
+      text: post.text,
+      image: post.image ? `http://localhost:5000${post.image}` : null,
+      likesCount: post.likes.length,
+      commentsCount: post.commentsCount || 0,
+      likedByCurrentUser,
+      isOwner: isOwner,
+      createdAt: post.createdAt,
+    };
+
+    res.json(formattedPost);
+  } catch (error) {
+    console.error("Post getirme hatası:", error);
+    res.status(500).json({ message: "Post alınamadı" });
+  }
+};
+
+const getLikedContent = async (req, res) => {
+  try {
+    const { userId } = req.params; // Profiline bakılan kullanıcı ID'si
+    const currentUserId = req.user._id.toString(); // Giriş yapmış (senin) kullanıcı ID'n
+
+    // 1. Beğenilen Postları Çek
+    const likedPosts = await Post.find({ likes: userId })
+      .populate("user", "username profileImage")
+      .lean();
+
+    // 2. Beğenilen Yorumları Çek
+    const likedComments = await Comment.find({ likes: userId })
+      .populate("user", "username profileImage")
+      .lean();
+
+    // 3. Postları Formatla
+    const formattedPosts = likedPosts.map((p) => {
+      const likedByCurrentUser = p.likes.some(
+        (id) => id.toString() === currentUserId,
+      );
+      const isOwner = p.user?._id?.toString() === currentUserId;
+
+      return {
+        _id: p._id,
+        userId: p.user?._id,
+        username: p.user?.username,
+        profileImage: p.user?.profileImage,
+        text: p.text,
+        image: p.image ? `http://localhost:5000${p.image}` : null,
+        likesCount: p.likes.length,
+        commentsCount: p.commentsCount || 0,
+        likedByCurrentUser: likedByCurrentUser,
+        isOwner: isOwner,
+        createdAt: p.createdAt,
+        isComment: false,
+      };
+    });
+
+    // 4. Yorumları Formatla
+    const formattedComments = likedComments.map((c) => {
+      const likedByCurrentUser = c.likes.some(
+        (id) => id.toString() === currentUserId,
+      );
+      const isOwner = c.user?._id?.toString() === currentUserId;
+
+      return {
+        _id: c._id,
+        userId: c.user?._id,
+        username: c.user?.username,
+        profileImage: c.user?.profileImage,
+        text: c.text,
+        image: c.image ? `http://localhost:5000${c.image}` : null,
+        likesCount: c.likes.length,
+        repliesCount: 0,
+        likedByCurrentUser: likedByCurrentUser,
+        isOwner: isOwner,
+        createdAt: c.createdAt,
+        isComment: true,
+      };
+    });
+
+    // 5. Birleştir ve Tarihe Göre Sırala
+    const allLiked = [...formattedPosts, ...formattedComments].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    );
+
+    res.json(allLiked);
+  } catch (error) {
+    console.error("getLikedContent Hatası:", error);
+    res.status(500).json({ message: "Beğeniler getirilemedi" });
+  }
+};
+
 module.exports = {
   createPost,
   getPosts,
   getExplore,
   likePost,
   deletePost,
-  getLikedPosts,
+  /*getLikedPosts,*/
+  getPostById,
+  getLikedContent,
 };

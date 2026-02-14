@@ -14,5 +14,12 @@ export const likePost = (postId) => api.put(`/posts/${postId}/like`);
 
 export const deletePost = (postId) => api.delete(`/posts/delete/${postId}`);
 
-export const getUserLikedPosts = (userId) =>
+/*export const getUserLikedPosts = (userId) =>
+  api.get(`/posts/user/${userId}/likes`);*/
+
+export const getLikedContent = (userId) =>
   api.get(`/posts/user/${userId}/likes`);
+
+export const getPostById = (postId) => {
+  return api.get(`/posts/${postId}`);
+};

@@ -138,7 +138,7 @@ const likePost = async (req, res) => {
   }
 };
 
-const deletePost = async (req, res) => {
+/*const deletePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
@@ -165,6 +165,49 @@ const deletePost = async (req, res) => {
     await post.deleteOne();
 
     res.status(204).end();
+  } catch (error) {
+    console.error("Silme hatası:", error);
+    res.status(500).json({ message: "Post silinemedi" });
+  }
+};*/
+
+const deletePost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ message: "Post bulunamadı" });
+    }
+
+    // Yetki kontrolü (req.user.id veya _id hangsini kullanıyorsan ona dikkat)
+    const currentUserId = req.user.id || req.user._id;
+    if (post.user.toString() !== currentUserId.toString()) {
+      return res.status(403).json({ message: "Yetkin yok" });
+    }
+
+    // 1. ADIM: Postun resmini klasörden sil
+    if (post.image) {
+      const imagePath = path.join(process.cwd(), post.image);
+      fs.access(imagePath, fs.constants.F_OK, (err) => {
+        if (!err) {
+          fs.unlink(imagePath, (err) => {
+            if (err) console.error("Resim dosyası silinirken hata:", err);
+          });
+        }
+      });
+    }
+
+    // 2. ADIM: Posta bağlı tüm yorumları sil (KRİTİK EKLEME)
+    // Comment modelinin yukarıda require edildiğinden emin ol
+    const Comment = require("../models/Comment");
+    await Comment.deleteMany({ post: post._id });
+
+    // 3. ADIM: Postun kendisini sil
+    await post.deleteOne();
+
+    // 204 dönerken frontend'e bazen boş obje dönmek daha iyidir
+    // veya başarı mesajı için 200 kullanabilirsin.
+    res.status(200).json({ message: "Post ve bağlı tüm yorumlar silindi" });
   } catch (error) {
     console.error("Silme hatası:", error);
     res.status(500).json({ message: "Post silinemedi" });

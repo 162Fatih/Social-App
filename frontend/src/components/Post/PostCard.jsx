@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Yönlendirme için eklendi
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { deletePost } from "../../api/post.api";
 import { addComment } from "../../api/comment.api";
 import { useTheme } from "../../context/ThemeContext";
 import { formatRelativeTime } from "../Component/DateInfo";
+import { useAuth } from "../../context/AuthContext";
 
 import MeatballsMenu from "../Component/MeatballsMenu";
 import UserInfo from "../Component/UserInfo";
@@ -14,18 +15,12 @@ import CommentModal from "../Comment/CommentModal";
 import "../../styles/PostCard.css";
 
 export default function PostCard({ post, onUpdate, isDetailView = false }) {
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const { user } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
 
-  const [localCommentsCount, setLocalCommentsCount] = useState(
-    post?.commentsCount || 0,
-  );
-
-  useEffect(() => {
-    setLocalCommentsCount(post?.commentsCount || 0);
-  }, [post?.commentsCount]);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
 
   if (!post) return null;
 
@@ -36,33 +31,45 @@ export default function PostCard({ post, onUpdate, isDetailView = false }) {
 
   const handleDelete = async (e) => {
     if (e) e.stopPropagation();
-
     if (!window.confirm("Bu postu silmek istediğine emin misin?")) return;
+
     try {
       setIsDeleting(true);
       await deletePost(post._id);
-      onUpdate?.();
+
+      if (isDetailView) {
+        onUpdate?.(true);
+      } else {
+        onUpdate?.();
+      }
     } catch (error) {
       alert("Post silinemedi");
       setIsDeleting(false);
     }
   };
 
-  const handleCommentSubmit = (commentData) => {
+  const handleCommentClick = (e) => {
+    if (e) e.stopPropagation();
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    setIsCommentModalOpen(true);
+  };
+
+  const handleCommentSubmit = async (commentData) => {
     const { text, image } = commentData;
     const formData = new FormData();
     formData.append("text", text);
     if (image) formData.append("image", image);
 
-    addComment(post._id, formData)
-      .then(() => {
-        setLocalCommentsCount((prev) => prev + 1);
-        setIsCommentModalOpen(false);
-        onUpdate?.();
-      })
-      .catch((error) => {
-        console.error("Yorum hatası:", error);
-      });
+    try {
+      await addComment(post._id, formData);
+      setIsCommentModalOpen(false);
+      onUpdate?.();
+    } catch (error) {
+      console.error("Yorum gönderilirken hata oluştu:", error);
+    }
   };
 
   return (
@@ -77,13 +84,12 @@ export default function PostCard({ post, onUpdate, isDetailView = false }) {
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-2">
             <UserInfo
-              userId={post.userId}
-              username={post.username}
-              profileImage={post.profileImage}
+              userId={post.userId || post.user?._id}
+              username={post.username || post.user?.username}
+              profileImage={post.profileImage || post.user?.profileImage}
               createdAt={post.createdAt}
               formatTime={formatRelativeTime}
             />
-            {/* stopPropagation MeatballsMenu içinde veya burada handle edilmeli */}
             <div onClick={(e) => e.stopPropagation()}>
               <MeatballsMenu isOwner={post.isOwner} onDelete={handleDelete} />
             </div>
@@ -104,8 +110,8 @@ export default function PostCard({ post, onUpdate, isDetailView = false }) {
               postId={post._id}
               likedByCurrentUser={post.likedByCurrentUser}
               likesCount={post.likesCount}
-              commentsCount={localCommentsCount}
-              onCommentClick={() => setIsCommentModalOpen(true)}
+              commentsCount={post.commentsCount}
+              onCommentClick={handleCommentClick}
             />
           </div>
         </div>

@@ -12,7 +12,7 @@ const upload = require("../middleware/multerMiddleware"); // Ortak dosyadan çek
 // Yorum ekleme - Resim desteği aktif
 router.post("/:postId", authMiddleware, upload.single("image"), addComment);
 
-router.get("/:postId", authMiddleware, getComments);
+router.get("/:postId", /*authMiddleware,*/ getComments);
 router.delete("/:id", authMiddleware, deleteComment);
 router.put("/:id/like", authMiddleware, likeComment);
 

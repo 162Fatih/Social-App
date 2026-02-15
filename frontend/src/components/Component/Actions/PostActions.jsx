@@ -18,7 +18,10 @@ export default function PostActions({
           likesCount={likesCount}
         />
 
-        <CommentButton commentsCount={commentsCount} onClick={onCommentClick} />
+        <CommentButton
+          commentsCount={commentsCount}
+          onClick={(e) => onCommentClick(e)}
+        />
       </div>
 
       <SaveButton isSavedInitial={false} />

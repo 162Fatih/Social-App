@@ -12,8 +12,13 @@ export default function UserInfo({
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  // Tıklamanın dışarıdaki PostCard'a yayılmasını engelleyen fonksiyon
+  const handleStopPropagation = (e) => {
+    e.stopPropagation();
+  };
+
   return (
-    <div className="d-flex align-items-center">
+    <div className="d-flex align-items-center" onClick={handleStopPropagation}>
       <Avatar userId={userId} profileImage={profileImage} size="45px" />
 
       <div className="ms-2">

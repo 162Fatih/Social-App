@@ -207,11 +207,55 @@ const getLikedPosts = async (req, res) => {
   }
 };
 
-const getPostById = async (req, res) => {
-  try {
-    const userId = req.user._id.toString();
+// const getPostById = async (req, res) => {
+//   try {
+//     const userId = req.user._id.toString();
 
-    // ID'ye göre postu bul ve kullanıcı bilgilerini çek
+//     // ID'ye göre postu bul ve kullanıcı bilgilerini çek
+//     const post = await Post.findById(req.params.id).populate(
+//       "user",
+//       "username email profileImage",
+//     );
+
+//     if (!post) {
+//       return res.status(404).json({ message: "Post bulunamadı" });
+//     }
+
+//     // Diğer listeleme fonksiyonlarındaki veri yapısının aynısını kuruyoruz
+//     const likedByCurrentUser = userId
+//       ? post.likes.some((id) => id.toString() === userId)
+//       : false;
+
+//     const isOwner = post.user._id.toString() === userId;
+
+//     const formattedPost = {
+//       _id: post._id,
+//       userId: post.user._id,
+//       username: post.user.username,
+//       profileImage: post.user.profileImage, // Varsa profil resmi
+//       text: post.text,
+//       image: post.image ? `http://localhost:5000${post.image}` : null,
+//       likesCount: post.likes.length,
+//       commentsCount: post.commentsCount || 0,
+//       likedByCurrentUser,
+//       isOwner: isOwner,
+//       createdAt: post.createdAt,
+//     };
+
+//     res.json(formattedPost);
+//   } catch (error) {
+//     console.error("Post getirme hatası:", error);
+//     res.status(500).json({ message: "Post alınamadı" });
+//   }
+// };
+
+/*const getPostById = async (req, res) => {
+  try {
+    // 1. Kullanıcı varsa ID'sini al, yoksa null bırak
+    // req.user?._id kullanmak, user undefined olsa bile hata vermesini engeller
+    const userId = req.user ? req.user._id.toString() : null;
+
+    // 2. ID'ye göre postu bul ve kullanıcı bilgilerini çek
     const post = await Post.findById(req.params.id).populate(
       "user",
       "username email profileImage",
@@ -221,18 +265,19 @@ const getPostById = async (req, res) => {
       return res.status(404).json({ message: "Post bulunamadı" });
     }
 
-    // Diğer listeleme fonksiyonlarındaki veri yapısının aynısını kuruyoruz
+    // 3. likedByCurrentUser: Kullanıcı varsa ve beğenmişse true döner
     const likedByCurrentUser = userId
       ? post.likes.some((id) => id.toString() === userId)
       : false;
 
-    const isOwner = post.user._id.toString() === userId;
+    // 4. isOwner: Kullanıcı varsa ve postun sahibi ise true döner
+    const isOwner = userId ? post.user._id.toString() === userId : false;
 
     const formattedPost = {
       _id: post._id,
       userId: post.user._id,
       username: post.user.username,
-      profileImage: post.user.profileImage, // Varsa profil resmi
+      profileImage: post.user.profileImage,
       text: post.text,
       image: post.image ? `http://localhost:5000${post.image}` : null,
       likesCount: post.likes.length,
@@ -246,6 +291,60 @@ const getPostById = async (req, res) => {
   } catch (error) {
     console.error("Post getirme hatası:", error);
     res.status(500).json({ message: "Post alınamadı" });
+  }
+};*/
+
+const getPostById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // 1. Postu bul ve kullanıcı bilgilerini çek
+    const post = await Post.findById(id).populate(
+      "user",
+      "username profileImage",
+    );
+
+    // 2. Eğer post yoksa güvenli bir şekilde 404 dön
+    if (!post) {
+      console.log(`Hata: ${id} ID'li post veritabanında mevcut değil.`);
+      return res.status(404).json({ message: "Gönderi bulunamadı" });
+    }
+
+    // 3. Kimlik tespiti (Middleware'den gelen)
+    const currentUserId = req.user ? req.user.id || req.user._id : null;
+
+    // Post sahibi tespiti (Populate gelmezse userId fallback'i ile)
+    const postOwnerId = post.user?._id || post.userId;
+
+    // 4. Veriyi Frontend'in beklediği formatta paketle
+    const formattedPost = {
+      ...post._doc,
+      // Sayısal değerlerin NaN olmasını engellemek için varsayılan değerler
+      likesCount: post.likes ? post.likes.length : 0,
+      commentsCount: post.commentsCount || 0,
+
+      // Sahiplik kontrolü
+      isOwner:
+        currentUserId && postOwnerId
+          ? postOwnerId.toString() === currentUserId.toString()
+          : false,
+
+      // Beğeni kontrolü
+      likedByCurrentUser:
+        currentUserId && post.likes
+          ? post.likes.some((l) => l.toString() === currentUserId.toString())
+          : false,
+    };
+
+    // 5. Temiz veriyi gönder
+    return res.status(200).json(formattedPost);
+  } catch (error) {
+    console.error("Post getirme hatası (Server):", error);
+    // Eğer ID formatı yanlışsa (CastError) 404 dönmesi daha mantıklıdır
+    if (error.name === "CastError") {
+      return res.status(404).json({ message: "Geçersiz gönderi kimliği" });
+    }
+    return res.status(500).json({ message: "Sunucu hatası" });
   }
 };
 

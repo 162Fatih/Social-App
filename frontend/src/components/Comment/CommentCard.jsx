@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import { formatRelativeTime } from "../Component/DateInfo";
 import { useAuth } from "../../context/AuthContext";
+import { useNavigate } from "react-router-dom"; // Yönlendirme için eklendi
 
 import { deleteComment } from "../../api/comment.api";
 import MeatballsMenu from "../Component/MeatballsMenu";
@@ -17,6 +18,7 @@ export default function CommentCard({ comment, onUpdate }) {
   const [isReplyModalOpen, setIsReplyModalOpen] = useState(false);
   const { theme } = useTheme();
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate(); // Navigate hook'unu tanımladık
 
   const [localRepliesCount, setLocalRepliesCount] = useState(
     comment?.repliesCount || 0,
@@ -27,6 +29,17 @@ export default function CommentCard({ comment, onUpdate }) {
   }, [comment?.repliesCount]);
 
   if (!comment) return null;
+
+  // Yorum butonuna tıklandığında çalışan fonksiyon
+  const handleReplyClick = () => {
+    if (!currentUser) {
+      // Kullanıcı yoksa login sayfasına yönlendir
+      navigate("/login");
+      return;
+    }
+    // Kullanıcı varsa modalı aç
+    setIsReplyModalOpen(true);
+  };
 
   const handleDelete = async () => {
     if (!window.confirm("Bu yorumu silmek istediğine emin misin?")) return;
@@ -81,7 +94,7 @@ export default function CommentCard({ comment, onUpdate }) {
             likedByCurrentUser={comment.likedByCurrentUser}
             likesCount={comment.likesCount}
             repliesCount={localRepliesCount}
-            onReplyClick={() => setIsReplyModalOpen(true)}
+            onReplyClick={handleReplyClick} // Yeni kontrol fonksiyonumuzu geçtik
           />
         </div>
       </div>

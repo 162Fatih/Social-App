@@ -15,27 +15,29 @@ export default function CommentList({
   const { theme } = useTheme();
   const { user: currentUser } = useAuth();
 
+  const currentUserId = currentUser?._id || currentUser?.id;
+
   const fetchComments = async () => {
+    if (!postId) return;
     try {
       const res = await getCommentsByPostId(postId);
+      const rawComments = Array.isArray(res.data) ? res.data : [];
 
-      const formattedComments = res.data.map((comment) => {
-        const currentId = currentUser?._id || currentUser?.id;
-
-        return {
-          _id: comment._id,
-          userId: comment.user?._id,
-          username: comment.user?.username,
-          profileImage: comment.user?.profileImage,
-          text: comment.text,
-          image: comment.image ? `http://localhost:5000${comment.image}` : null,
-          likesCount: comment.likes?.length || 0,
-          repliesCount: 0,
-          createdAt: comment.createdAt,
-          isOwner: comment.user?._id === currentId,
-          likedByCurrentUser: comment.likes?.includes(currentId),
-        };
-      });
+      const formattedComments = rawComments.map((comment) => ({
+        ...comment,
+        userId: comment.user?._id || comment.userId,
+        username: comment.user?.username || "Kullanıcı",
+        profileImage: comment.user?.profileImage,
+        image: comment.image ? `http://localhost:5000${comment.image}` : null,
+        likesCount: comment.likes?.length || 0,
+        isOwner:
+          currentUserId &&
+          (comment.user?._id === currentUserId ||
+            comment.userId === currentUserId),
+        likedByCurrentUser: currentUserId
+          ? comment.likes?.includes(currentUserId)
+          : false,
+      }));
 
       setComments(formattedComments);
     } catch (err) {
@@ -46,22 +48,15 @@ export default function CommentList({
   };
 
   useEffect(() => {
-    if (currentUser && postId) {
-      fetchComments();
-    }
-  }, [postId, refreshTrigger, currentUser]);
+    fetchComments();
+  }, [postId, refreshTrigger, currentUserId]);
 
   const handleCommentUpdate = () => {
     fetchComments();
-
-    if (onCommentDeleted) {
-      onCommentDeleted();
-    }
+    onCommentDeleted?.();
   };
 
-  if (loading) {
-    return <Loading message="Yorumlar Yükleniyor..." />;
-  }
+  if (loading) return <Loading message="Yorumlar Yükleniyor..." />;
 
   return (
     <div

@@ -76,7 +76,14 @@ export default function CommentCard({ comment, onUpdate }) {
               createdAt={comment.createdAt}
               formatTime={formatRelativeTime}
             />
-            <MeatballsMenu isOwner={comment.isOwner} onDelete={handleDelete} />
+            {/* <MeatballsMenu isOwner={comment.isOwner} onDelete={handleDelete} /> */}
+            <div className="dropdown-container">
+              {" "}
+              <MeatballsMenu
+                isOwner={comment.isOwner}
+                onDelete={handleDelete}
+              />
+            </div>
           </div>
 
           <div className="post-container">

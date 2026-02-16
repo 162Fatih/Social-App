@@ -50,9 +50,8 @@
   background-color: #cfd9de;
 }
 
-/* Post Detayları & Profil Linki */
 .hover-underline:hover {
-  text-decoration: underline !important;
+  text-decoration: none !important;
 }
 
 /* Yanıtlanan Postun Görseli */

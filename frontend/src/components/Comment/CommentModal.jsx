@@ -17,7 +17,12 @@ export default function CommentModal({ post, isOpen, onClose, onSubmit }) {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
 
-  if (!isOpen) return null;
+  if (!isOpen || !post) return null;
+
+  // Veri derinliği fark etmeksizin ismi ve ID'yi güvenli bir şekilde alıyoruz
+  const postUsername = post.username || post.user?.username || "Kullanıcı";
+  const postUserId = post.userId || post.user?._id || post.user?.id;
+  const postProfileImage = post.profileImage || post.user?.profileImage;
 
   const handleImageSelect = (file) => {
     setImage(file);
@@ -54,11 +59,12 @@ export default function CommentModal({ post, isOpen, onClose, onSubmit }) {
         </div>
 
         <div className="modal-body-custom px-3 pb-3">
+          {/* Yanıt Verilen Post Bölümü */}
           <div className="parent-post-section d-flex gap-3">
             <div className="d-flex flex-column align-items-center">
               <Avatar
-                userId={post.userId}
-                profileImage={post.profileImage}
+                userId={postUserId}
+                profileImage={postProfileImage}
                 size="48px"
               />
               <div className="reply-line"></div>
@@ -66,33 +72,38 @@ export default function CommentModal({ post, isOpen, onClose, onSubmit }) {
             <div className="post-details w-100">
               <div className="d-flex gap-2 align-items-center">
                 <Link
-                  to={`/profile/${post.userId}`}
+                  to={`/profile/${postUserId}`}
                   className="text-decoration-none text-reset fw-bold hover-underline"
                 >
-                  {post.username}
+                  {postUsername}
                 </Link>
                 <span className="text-secondary small">·</span>
                 <span className="text-secondary small">
                   {formatRelativeTime(post.createdAt)}
                 </span>
               </div>
+
               {post.text && <p className="mt-1 mb-2">{post.text}</p>}
+
+              {/* Post Resmi: Backend URL eksikliği giderildi */}
               {post.image && (
                 <div className="modal-post-image-container mb-2">
                   <img
-                    src={post.image}
+                    src={`http://localhost:5000${post.image}`}
                     alt="post"
                     className="img-fluid rounded-3 border border-secondary border-opacity-25"
                   />
                 </div>
               )}
+
               <div className="small text-secondary mb-3">
                 Yanıt verilen kişi:{" "}
-                <span className="text-primary">@{post.username}</span>
+                <span className="text-primary">@{postUsername}</span>
               </div>
             </div>
           </div>
 
+          {/* Kendi Yanıt Bölümümüz */}
           <div className="my-reply-section d-flex gap-3">
             <div className="d-flex flex-column align-items-center">
               <Avatar
